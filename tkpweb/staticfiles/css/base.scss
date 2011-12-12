@@ -71,6 +71,11 @@ h1, h2
   background-color: $color-heading-bg;
   font-weight: 500;
   letter-spacing: 0.1em;
+  a
+  {
+    color: $color-heading-fg;
+    text-decoration: none;
+  }
 }
 
 
@@ -87,18 +92,29 @@ header h1
   background-color: inherit;
   margin: 0;
   padding: 0;
+  a
+  {
+    color: $color-header-fg;
+    text-decoration: none;
+  }
 }
 
 
 a
 {
   color: $color-header-bg;
+  text-decoration: none;
 }
 
 
 a:active
 {
   color: $color-header-fg;
+}
+
+a:hover
+{
+  text-decoration: underline;
 }
 
 

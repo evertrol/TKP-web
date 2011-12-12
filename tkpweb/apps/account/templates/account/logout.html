@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% block main %}
+You are logged out. You can <a href="{% url 'django.contrib.auth.views.login' %}">log in</a> again.
+{% endblock main %}

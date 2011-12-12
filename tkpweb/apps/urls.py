@@ -8,6 +8,7 @@ urlpatterns = patterns(
     '',
     # Examples:
     url(r'^dataset/', include('tkpweb.apps.dataset.urls', namespace='dataset')),
+    url(r'^account/', include('tkpweb.apps.account.urls', namespace='account')),
     # url(r'^tkpweb/', include('tkpweb.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
