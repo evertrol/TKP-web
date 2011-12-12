@@ -1,0 +1,33 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>{{ name }}s</h1>
+
+<table>
+<thead>
+<tr>
+<th><a href="{% url 'dataset:table' dataset=dataset.dsid table=name %}?order={% if ordering.0 == 'dsid' and ordering.1 == 'ASC' %}-{% endif %}dsid">id</a></th>
+<!-- <th><a href="{% url 'dataset:table' dataset=dataset.dsid table=name %}?order={% if ordering.0 == 'dstype' and ordering.1 == 'ASC' %}-{% endif %}dstype">type</a></th> -->
+<th><a href="{% url 'dataset:table' dataset=dataset.dsid table=name %}?order={% if ordering.0 == 'description' and ordering.1 == 'ASC' %}-{% endif %}description">description</a></th>
+<th><a href="{% url 'dataset:table' dataset=dataset.dsid table=name %}?order={% if ordering.0 == 'dsinname' and ordering.1 == 'ASC' %}-{% endif %}name">in name</a></th>
+<!-- <th><a href="{% url 'dataset:table' dataset=dataset.dsid table=name %}?order={% if ordering.0 == 'dsoutname' and ordering.1 == 'ASC' %}-{% endif %}dsoutname">out name</a></th> -->
+<th><a href="{% url 'dataset:table' dataset=dataset.dsid table=name %}?order={% if ordering.0 == 'rerun' and ordering.1 == 'ASC' %}-{% endif %}rerun">Reprocessing step #</a></th>
+<th><a href="{% url 'dataset:table' dataset=dataset.dsid table=name %}?order={% if ordering.0 == 'process_ts' and ordering.1 == 'ASC' %}-{% endif %}process_ts">Processing finished</a></th>
+<th>Number of transients</th>
+</tr>
+</thead>
+<tbody>
+{% for row in listing %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td><a href="{% url 'dataset:table-row' dataset=dataset.dsid table=name row=row.id %}">{{ row.id }}</a></td>
+<td>{{ row. }}</td>
+<td>{{ row. }}</td>
+<td>{{ row. }}</td>
+<td>{{ row. }}</td>
+<td>{{ row. }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock main %}

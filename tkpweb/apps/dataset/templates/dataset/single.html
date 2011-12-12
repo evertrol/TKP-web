@@ -1,0 +1,33 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>Dataset #{{ dataset.dsid }}, {{ dataset.dsinname }}</h1>
+
+<h2>Properties</h2>
+
+<dl>
+<!--
+  <dt>type</dt>
+  <dd>{{ dataset.dstype }}</dd>
+-->
+  <dt>description</dt>
+  <dd>{{ dataset.description }}</dd>
+<!--
+  <dt>out name</dt>
+  <dd>{{ dataset.dsoutname }}</dd>
+-->
+  <dt>Reprocessing step</dt>
+  <dd>{{ dataset.rerun }}</dd>
+  <dt>processing finished</dt>
+  <dd>{{ dataset.process_ts|date:"c" }}</dd>
+</dl>
+
+<h2>Details</h2>
+
+<ul>
+  <li><a href="{% url 'dataset:table' dataset=dataset.dsid table='transient' %}">List transients</a></li>
+  <li><a href="{% url 'dataset:table' dataset=dataset.dsid table='image' %}">List images</a></li>
+  <li><a href="{% url 'dataset:table' dataset=dataset.dsid table='source' %}">List sources</a></li>
+  <li><a href="{% url 'dataset:table' dataset=dataset.dsid table='extractedsource' %}">List extractedsources</a></li>
+</ul>
+{% endblock main %}

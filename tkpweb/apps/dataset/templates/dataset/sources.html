@@ -1,0 +1,32 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>Sources for Dataset # {{ sources.0.dataset }}</h1>
+
+<table>
+<thead>
+<tr>
+<th>Source #</th>
+<th>Right Ascension (&deg;)</th>
+<th>Declination (&deg;)</th>
+<th>Error (RA) (&Prime;)</th>
+<th>Error (dec.) (&Prime;)</th>
+<th># of data points</th>
+</tr>
+</thead>
+<tbody>
+<tbody>
+{% for source in sources %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td><a href="{% url 'dataset:source' dataset=dataset.id id=source.id %}">{{ source.id }}</a></td>
+<td>{{ source.wm_ra }}</td>
+<td>{{ source.wm_decl }}</td>
+<td>{{ source.wm_ra_err }}</td>
+<td>{{ source.wm_decl_err }}</td>
+<td>{{ source.datapoints }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock main %}

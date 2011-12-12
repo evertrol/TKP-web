@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="utf-8" />
+ <title>{% block title %}{{ title }}{% endblock title %}</title>
+ <meta name="author" content="Evert Rol, TKP" />
+ <meta name="copyright" content="Transients Key Project, Universiteit van Amsterdam" />
+{% block stylesheets %}
+ <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/base.css" />
+{% endblock stylesheets %}
+{% block scripts %}{% endblock scripts%}
+</head>
+<body>
+<header>
+<h1>LOFAR transients database</h1>
+</header>
+<nav>
+</nav>
+<section id="main">
+{% block main %}
+{% endblock main %}
+</section>
+</body>
+</html>

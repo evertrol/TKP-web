@@ -1,0 +1,36 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>Images for Dataset # {{ images.0.dataset }}</h1>
+
+<table>
+<thead>
+<tr>
+<th>Image #</th>
+<th>Phase center</th>
+<!-- <th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'dsid' and ordering.1 == 'ASC' %}-{% endif %}dsid">id</a></th> -->
+<!-- <th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'dstype' and ordering.1 == 'ASC' %}-{% endif %}dstype">type</a></th> -->
+<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'description' and ordering.1 == 'ASC' %}-{% endif %}description">Start time (seconds)</a></th>
+<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'dsinname' and ordering.1 == 'ASC' %}-{% endif %}name">Integration time (seconds)</a></th>
+<!-- <th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'dsoutname' and ordering.1 == 'ASC' %}-{% endif %}dsoutname">out name</a></th> -->
+<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'rerun' and ordering.1 == 'ASC' %}-{% endif %}rerun">Frequency (Hertz)</a></th>
+<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'process_ts' and ordering.1 == 'ASC' %}-{% endif %}process_ts">Bandwidth (Hertz)</a></th>
+<th>Number of sources in image</th>
+</tr>
+</thead>
+<tbody>
+{% for image in images %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td><a href="{% url 'dataset:image' dataset=dataset.id id=image.id %}">{{ image.id }}</a></td>
+<td>{{ image.ra }}, {{ image.dec }}</td>
+<td>{{ image.obsstart }}</td>
+<td>{{ image.inttime }}</td>
+<td>{{ image.frequency }}</td>
+<td>{{ image.bandwidth }}</td>
+<td>{{ image.ntotalsources }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock main %}

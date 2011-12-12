@@ -4,8 +4,10 @@ from django.conf.urls import patterns, include, url
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     # Examples:
+    url(r'^dataset/', include('tkpweb.apps.dataset.urls', namespace='dataset')),
     # url(r'^tkpweb/', include('tkpweb.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
@@ -13,6 +15,5 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-
-    url(r'^', include('tkpweb.apps.urls')),
+    url(r'^$', include('tkpweb.apps.main.urls', namespace='main')),
 )

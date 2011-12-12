@@ -1,0 +1,24 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>Transient #{{ transient.id }}</h1>
+
+
+<h2>Properties</h2>
+
+<dl>
+  <dt>Position</dt>
+  <dd>({{ transient.wm_ra }}&deg;, {{ transient.wm_decl }}&deg;) &pm; ({{ transient.wm_ra_err }}&Prime;, {{ transient.wm_decl_err }}&Prime;)</dd>
+  <dt>Significance level</dt>
+  <dd>{{ transient.siglevel }}</dd>
+  <dt>Start date</dt>
+  <dd>{{ transient.startdate }}</dd>
+  <dt># of datapoints</dt>
+  <dd>{{ transient.datapoints }}</dd>
+  <dt>Associated source</dt>
+  <dd># <a href="{% url 'dataset:source' dataset=dataset.id id=transient.xtrsrc_id %}">{{ transient.xtrsrc_id }}</a></dd>
+  <dt>Dataset</dt>
+  <dd># <a href="{% url 'dataset:dataset' id=dataset.id %}">{{ dataset.id }}</a></dd>
+</dl>
+
+{% endblock main %}

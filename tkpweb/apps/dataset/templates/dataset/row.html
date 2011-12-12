@@ -1,0 +1,16 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>{{ name }} #{{ data.id }}</h1>
+
+
+<h2>Properties</h2>
+
+<dl>
+{% for key, value in data.items %}
+  <dt>{{ key }}</dt>
+  <dd>{{ value }}</dd>
+{% endfor %}
+</dl>
+
+{% endblock main %}

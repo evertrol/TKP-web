@@ -1,0 +1,43 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>Extractedsource #{{ extractedsource.id }}</h1>
+
+
+<h2>Properties</h2>
+
+<dl>
+  <dt>Position</dt>
+  <dd>({{ extractedsource.ra }}&deg;, {{ extractedsource.decl }}&deg;) &pm; ({{ extractedsource.ra_err }}&Prime;, {{ extractedsource.decl_err }}&Prime;)</dd>
+  <dt>Signal to noise</dt>
+  <dd>{{ extractedsource.det_sigma }}</dd>
+  <dt>Peak flux</dt>
+  <dd>
+<table>
+<thead><tr><th>Stokes</th><th>Flux (Jy)</th><th>Error (Jy)</th></tr></thead>
+<tbody>
+{% for flux in extractedsource.flux.peak %}
+<tr><th>{{ flux.stokes|upper }}</th><td>{% if flux.value %}{{ flux.value }}{% else %}-{% endif %}</td><td>{% if flux.error %}{{ flux.error }}{% else %}-{% endif %}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+  </dd>
+  <dt>Integrated flux</dt>
+  <dd>
+<table>
+<thead><tr><th>Stokes</th><th>Flux (Jy)</th><th>Error (Jy)</th></tr></thead>
+<tbody>
+{% for flux in extractedsource.flux.int %}
+<tr><th>{{ flux.stokes|upper }}</th><td>{% if flux.value %}{{ flux.value }}{% else %}-{% endif %}</td><td>{% if flux.error %}{{ flux.error }}{% else %}-{% endif %}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+  </dd>
+  <dt>Dataset</dt>
+  <dd><a href="{% url 'dataset:dataset' id=dataset.id %}">{{ dataset.id }}</a></dd>
+  <dt>Image</dt>
+  <dd><a href="{% url 'dataset:image' dataset=dataset.id id=extractedsource.image %}">{{ extractedsource.image }}</a></dd>
+</dl>
+<!--
+-->
+{% endblock main %}

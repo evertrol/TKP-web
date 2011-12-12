@@ -1,0 +1,35 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>Transients for Dataset # {{ transients.0.dataset }}</h1>
+
+<table>
+<thead>
+<tr>
+<th>Transient #</th>
+<th>Position</th>
+<th>Start date</th>
+<th>Significance level</th>
+<!-- <th>Detection level</th> -->
+<!-- <th>Status</th> -->
+<th># of datapoints</th>
+<th>Associated source</th>
+</tr>
+</thead>
+<tbody>
+{% for transient in transients %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td><a href="{% url 'dataset:transient' dataset=dataset.id id=transient.id %}">{{ transient.id }}</a></td>
+<td>{{ transient.wm_ra }}, {{ transient.wm_dec }}</td>
+<td>{{ transient.startdate }}</td>
+<td>{{ transient.siglevel }}</td>
+<!-- <td>{{ transient.detection_level }}</td> -->
+<!-- <td>{{ transient.status }}</td> -->
+<td>{{ transient.datapoints }}</td>
+<td><a href="{% url 'dataset:source' dataset=dataset.id id=transient.xtrsrc_id %}">{{ transient.xtrsrc_id }}</a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock main %}

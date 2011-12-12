@@ -1,0 +1,184 @@
+$color-main-bg: #fff;
+$color-main-fg: #000;
+$color-header-fg: #eee;
+$color-header-bg: #32668E; //#360b9b;
+$color-heading-fg: #af6d20;
+$color-heading-bg: inherit;
+$color1a: #660BAB;
+$color2a: #00B64F;
+$color3a: #FF8900;
+$color2b: #62DA97;
+$color-tr-bg: #82FAB7;
+$term-color: #070;
+$color-keytext1: #22884f;
+$color-keytext2: #22884f;
+$nav-width: 13em;
+$dt-size: 11em;
+$table-lines: 1px solid #999;
+
+html
+{
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  font-family: Verdana, Tahoma, sans-serif;
+  font-size: 13px;
+}
+
+body
+{
+  background-color: $color-main-bg;
+  color: $color-main-bg;
+  margin: 0;
+  padding: 0 0 10px 0;
+}
+
+
+header
+{
+  background-color: $color-header-bg;
+  color: $color-header-fg;
+  margin: 0;
+  padding: 3ex 0.5em 5ex 3.5em;
+}
+
+
+nav
+{
+  float: right;
+  width: $nav-width;
+  margin: 2ex 0 2ex 0;
+  padding: 2ex 2em 2ex 2em;
+  text-align: right;
+  background-color: $color-main-bg;
+  color: $color-main-fg;
+}
+
+
+section#main
+{
+  background-color: $color-main-bg;
+  color: $color-main-fg;
+  margin: 2ex $nav-width+2em 2ex 2em;
+  padding: 1ex 0.5em 5ex 1.5em;
+  border-right: 1px dotted #660bab;
+}
+  
+h1, h2
+{
+  margin-top: 0;
+  color: $color-heading-fg;
+  background-color: $color-heading-bg;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+
+h2
+{
+  margin-top: 2ex;
+}
+
+
+header h1
+{
+  font-family: Palatino;
+  color: $color-header-fg;
+  background-color: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+
+a
+{
+  color: $color-header-bg;
+}
+
+
+a:active
+{
+  color: $color-header-fg;
+}
+
+
+dl 
+{
+  padding: 0.5em;
+
+  dt
+  {
+    float: left;
+    clear: both;
+    width: 11em;
+    text-align: right;
+    font-weight: normal;
+    color: $color-keytext1;
+    padding-bottom: 0.5em;
+
+     &:after 
+    {
+      content: ":";
+    }
+  }
+  dd 
+  {
+    margin: 0 0 0 $dt-size + 1em;
+    padding-bottom: 0.5em;
+  }
+}
+
+table
+{
+  border: $table-lines;
+  border-collapse: collapse;
+
+  thead
+  {
+    tr
+    {
+      border-bottom: $table-lines;
+    }
+    th, th a
+    {
+      // color: $term-color;
+      color: $color-heading-fg;
+      font-weight: 500;
+    }
+    th
+    {
+      padding: 0.2em 0.6em;
+      border-left: $table-lines;
+      color: $term-color;
+    }
+    th a
+    {
+      text-decoration: none
+    }
+  }
+  tr
+  {
+    th:first-child
+    {
+      border-left: none;
+    }
+    td:first-child
+    {
+      border-left: none;
+    }
+  
+    &.odd
+    {
+      background-color: $color-tr-bg;
+    }
+    &.even
+    {
+      background-color: #eee;
+    }
+  }
+  td
+  {
+    padding: 0.2em 0.6em;
+    border-left: $table-lines;
+  }
+}

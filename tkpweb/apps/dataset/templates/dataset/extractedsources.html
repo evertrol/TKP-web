@@ -1,0 +1,98 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>Extractedsources for Dataset # {{ extractedsources.0.dataset }}</h1>
+
+<table>
+<thead>
+<tr>
+<th>Extracted source #</th>
+<th>Right Ascension</th>
+<th>Declination</th>
+<th>Error (RA)</th>
+<th>Error (dec.)</th>
+<th>S/N</th>
+<th>I peak flux</th>
+<th>I peak flux error</th>
+<!--
+<th>Q peak flux</th>
+<th>Q peak flux error</th>
+<th>U peak flux</th>
+<th>U peak flux error</th>
+<th>V peak flux</th>
+<th>V peak flux error</th>
+-->
+<th>I integrated flux</th>
+<th>I integrated flux error</th>
+<!--
+<th>Q integrated flux</th>
+<th>Q integrated flux error</th>
+<th>U integrated flux</th>
+<th>U integrated flux error</th>
+<th>V integrated flux</th>
+<th>V integrated flux error</th>
+-->
+</tr>
+</thead>
+<tbody>
+{% for extractedsource in extractedsources %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td><a href="{% url 'dataset:extractedsource' dataset=dataset.id id=extractedsource.id %}">{{ extractedsource.id }}</a></td>
+<td>{{ extractedsource.ra }}</td>
+<td> {{ extractedsource.decl }}</td>
+<td>{{ extractedsource.ra_err }}</td>
+<td> {{ extractedsource.decl_err }}</td>
+<td>{{ extractedsource.det_sigma }}</td>
+{% for flux in extractedsource.flux.peak %}
+{% if forloop.counter == 1 %}
+<td>{% if flux.value %}{{ flux.value }}{% else %}-{% endif %}</td>
+<td>{% if flux.error %}{{ flux.error }}{% else %}-{% endif %}</td>
+{% endif %}
+{% endfor %}
+{% for flux in extractedsource.flux.int %}
+{% if forloop.counter == 1 %}
+<td>{% if flux.value %}{{ flux.value }}{% else %}-{% endif %}</td>
+<td>{% if flux.error %}{{ flux.error }}{% else %}-{% endif %}</td>
+{% endif %}
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% comment %}
+sql> \d extractedsources
+        "xtrsrcid"   INTEGER       NOT NULL       DEFAULT next value for "trap"."seq_extractedsources",
+        "image_id"   INTEGER       NOT NULL,
+        "zone"       INTEGER       NOT NULL,
+        "ra"         DOUBLE        NOT NULL,
+        "decl"       DOUBLE        NOT NULL,
+        "ra_err"     DOUBLE        NOT NULL,
+        "decl_err"   DOUBLE        NOT NULL,
+        "x"          DOUBLE        NOT NULL,
+        "y"          DOUBLE        NOT NULL,
+        "z"          DOUBLE        NOT NULL,
+        "margin"     BOOLEAN       NOT NULL       DEFAULT 0,
+        "det_sigma"  DOUBLE        NOT NULL,
+        "semimajor"  DOUBLE,
+        "semiminor"  DOUBLE,
+        "pa"         DOUBLE,
+        "i_peak"     DOUBLE,
+        "i_peak_err" DOUBLE,
+        "q_peak"     DOUBLE,
+        "q_peak_err" DOUBLE,
+        "u_peak"     DOUBLE,
+        "u_peak_err" DOUBLE,
+        "v_peak"     DOUBLE,
+        "v_peak_err" DOUBLE,
+        "i_int"      DOUBLE,
+        "i_int_err"  DOUBLE,
+        "q_int"      DOUBLE,
+        "q_int_err"  DOUBLE,
+        "u_int"      DOUBLE,
+        "u_int_err"  DOUBLE,
+        "v_int"      DOUBLE,
+        "v_int_err"  DOUBLE,
+        "id"         INTEGER,
+{% endcomment %}
+{% endblock main %}
