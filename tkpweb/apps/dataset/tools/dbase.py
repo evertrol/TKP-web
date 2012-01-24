@@ -1,4 +1,10 @@
 from tkp.database.database import DataBase
+from tkp.database.dataset import ExtractedSource
+from tkp.utility.accessors import DataAccessor
+from tkp.utility.accessors import FITSImage
+from tkp.utility.accessors import CASAImage
+from scipy.stats import chisqprob
+from .image import open_image
 
 
 def dataset(id=None, extra_info=()):
@@ -142,9 +148,10 @@ def image(id=None, dataset=None, extra_info=()):
              'dataset']):
             images[-1][key2] = images[-1][key1]
         # Open image to obtain phase center
-        # Dummy values
-        images[-1]['ra'] = 0.0
-        images[-1]['dec'] = 0.0
+        img = open_image(images[-1]['url'])
+        header = img.get_header()
+        images[-1]['ra'] = header['phasera']
+        images[-1]['dec'] = header['phasedec']
         if 'ntotalsources' in extra_info:
             query = """\
 SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
@@ -204,6 +211,9 @@ WHERE tr.xtrsrc_id = rc.xtrsrc_id AND ds_id = %s""", (dataset,))
             ['transientid', 't_start'],
             ['id', 'startdate']):
             transients[-1][key2] = transients[-1][key1]
+        n = transients[-1]['datapoints']
+        transients[-1]['siglevel'] = chisqprob(
+            transients[-1]['siglevel'] * n, n)
     return transients
 
 
@@ -325,10 +335,63 @@ WHERE ex.image_id = im.imageid AND im.ds_id = %s""", (dataset,))
     return sources
 
 
+def monitoringlist(dataset=dataset):
+
+    db = DataBase()
+    # Get all user defined entries
+    query = """\
+SELECT * FROM monitoringlist WHERE userentry = TRUE"""
+    db.execute(query)
+    description = dict(
+        [(d[0], i) for i, d in enumerate(db.cursor.description)])
+    sources = []
+    for row in db.cursor.fetchall():
+        sources.append(
+            dict([(key, row[column])
+                  for key, column in description.iteritems()]))
+        # Format into somewhat nicer keys;
+        for key1, key2 in zip(
+            ['monitorid', 'image_id'],
+            ['id', 'image']):
+            sources[-1][key2] = sources[-1][key1]
+    # Get all non-user entries belonging to this dataset
+    query = """\
+SELECT * FROM monitoringlist ml, runningcatalog rc
+WHERE ml.userentry = FALSE AND ml.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s"""
+    db.execute(query, (dataset,))
+    description = dict(
+        [(d[0], i) for i, d in enumerate(db.cursor.description)])
+    for row in db.cursor.fetchall():
+        sources.append(
+            dict([(key, row[column])
+                  for key, column in description.iteritems()]))
+        # Format into somewhat nicer keys;
+        # replace ra, dec by values from runningcatalog
+        for key1, key2 in zip(
+            ['monitorid', 'image_id', 'wm_ra', 'wm_decl'],
+            ['id', 'image', 'ra', 'decl']):
+            sources[-1][key2] = sources[-1][key1]
+    db.close()
+    return sources
 
 
+def update_monitoringlist(ra, dec):
+    db = DataBase()
+    query = """\
+INSERT INTO monitoringlist
+(xtrsrc_id, ra, decl, userentry)
+VALUES (-1, %s, %s, TRUE)"""
+    print 'executing query', query % (ra, dec)
+    db.execute(query, (ra, dec))
+    db.commit()
+    db.close()
 
 
+def lightcurve(srcid):
+   db = DataBase()
+   lc = ExtractedSource(id=srcid, database=db).lightcurve()
+   db.close()
+   return lc
 
 
 
