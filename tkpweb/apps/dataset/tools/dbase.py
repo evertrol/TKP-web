@@ -150,8 +150,12 @@ def image(id=None, dataset=None, extra_info=()):
         # Open image to obtain phase center
         img = open_image(images[-1]['url'])
         header = img.get_header()
-        images[-1]['ra'] = header['phasera']
-        images[-1]['dec'] = header['phasedec']
+        try:
+            images[-1]['ra'] = header['phasera']
+            images[-1]['dec'] = header['phasedec']
+        except KeyError:
+            images[-1]['ra'] = None
+            images[-1]['Dec'] = None
         if 'ntotalsources' in extra_info:
             query = """\
 SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
