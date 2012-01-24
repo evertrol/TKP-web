@@ -13,8 +13,8 @@ from .forms import MonitoringListForm
 from tkp.database.database import DataBase
 import tkp.database.dataset as dbset
 import tkp.database.utils as tkpdbutils
-from tkp.classification.manual.transient import Transient
-from tkp.classification.manual.utils import Position
+from tkp.classification.transient import Transient
+from tkp.classification.transient import Position
 from scipy.stats import chisqprob
 import datetime
 
