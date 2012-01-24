@@ -1,7 +1,11 @@
 from django.views.generic import View
 from django.views.generic import TemplateView
 from django.views.generic.base import TemplateResponseMixin
+from django.core.urlresolvers import reverse
 from django.http import Http404
+from django.http import HttpResponse
+from django.http import HttpResponseForbidden
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from .tools import dbase
 from tkp.database.database import DataBase
@@ -29,10 +33,10 @@ class DatasetsView(TemplateResponseMixin, View):
 class DatasetView(TemplateResponseMixin, View):
     template_name = "dataset/dataset.html"
 
-    def get(self, query, id):
+    def get(self, request, id):
         """List details for single dataset"""
 
-        dataset = dbase.dataset(extra_info=[
+        dataset = dbase.dataset(id=id, extra_info=[
             "ntransients", "nimages", "nsources", "ntotalsources"])
         if not dataset:
             raise Http404
@@ -46,7 +50,7 @@ class DatasetView(TemplateResponseMixin, View):
 class ImagesView(TemplateResponseMixin, View):
     template_name = "dataset/images.html"
 
-    def get(self, query, dataset):
+    def get(self, request, dataset):
         images = dbase.image(dataset=dataset, extra_info=['ntotalsources'])
         dataset = dbase.dataset(id=dataset)[0]
         return self.render_to_response(
@@ -58,7 +62,7 @@ class ImagesView(TemplateResponseMixin, View):
 class ImageView(TemplateResponseMixin, View):
     template_name = "dataset/image.html"
 
-    def get(self, query, dataset, id):
+    def get(self, request, dataset, id):
         image = dbase.image(dataset=dataset, extra_info=['ntotalsources'])
         if not image:
             raise Http404
@@ -75,7 +79,7 @@ class ImageView(TemplateResponseMixin, View):
 class TransientsView(TemplateResponseMixin, View):
     template_name = "dataset/transients.html"
 
-    def get(self, query, dataset):
+    def get(self, request, dataset):
         transients = dbase.transient(dataset=dataset)
         dataset = dbase.dataset(id=dataset)[0]
         return self.render_to_response(
@@ -87,7 +91,7 @@ class TransientsView(TemplateResponseMixin, View):
 class TransientView(TemplateResponseMixin, View):
     template_name = "dataset/transient.html"
 
-    def get(self, query, dataset, id):
+    def get(self, request, dataset, id):
         transient = dbase.transient(id=id, dataset=dataset)
         if not transient:
             raise Http404
@@ -103,7 +107,7 @@ class TransientView(TemplateResponseMixin, View):
 class SourcesView(TemplateResponseMixin, View):
     template_name = "dataset/sources.html"
 
-    def get(self, query, dataset):
+    def get(self, request, dataset):
         sources = dbase.source(dataset=dataset)
         dataset = dbase.dataset(id=dataset)[0]
         return self.render_to_response(
@@ -115,7 +119,7 @@ class SourcesView(TemplateResponseMixin, View):
 class SourceView(TemplateResponseMixin, View):
     template_name = "dataset/source.html"
 
-    def get(self, query, dataset, id):
+    def get(self, request, dataset, id):
         source = dbase.source(id=id, dataset=dataset)
         if not source:
             raise Http404
@@ -131,7 +135,7 @@ class SourceView(TemplateResponseMixin, View):
 class ExtractedSourcesView(TemplateResponseMixin, View):
     template_name = "dataset/extractedsources.html"
 
-    def get(self, query, dataset):
+    def get(self, request, dataset):
 #        self.db = DataBase()
 #        self.db.execute("""\
 #SELECT * FROM extractedsources ex, images im
@@ -174,7 +178,7 @@ class ExtractedSourcesView(TemplateResponseMixin, View):
 class ExtractedSourceView(TemplateResponseMixin, View):
     template_name = "dataset/extractedsource.html"
 
-    def get(self, query, dataset, id):
+    def get(self, request, dataset, id):
 #        self.db = DataBase()
 #        result = self.db.execute("""\
 #SELECT * FROM extractedsources ex, images im
