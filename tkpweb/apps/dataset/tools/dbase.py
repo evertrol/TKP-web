@@ -46,7 +46,7 @@ def dataset(id=None, extra_info=()):
     extra_info = set(extra_info)
     db = DataBase()
     if id is not None:  # id = 0 could be valid for some databases
-        db.execute("""SELECT * FROM datasets WHERE dsid = %s""", (id,))
+        db.execute("""SELECT * FROM datasets WHERE dsid = %s""", id)
     else:
         db.execute("""SELECT * FROM datasets""")
     description = dict(
@@ -66,23 +66,23 @@ def dataset(id=None, extra_info=()):
 SELECT COUNT(*) FROM transients tr, runningcatalog rc
 WHERE tr.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s"""
             datasets[-1]['ntransients'] = db.getone(
-                query, (datasets[-1]['id'],))[0]
+                query, datasets[-1]['id'])[0]
         if 'nimages' in extra_info:
             query = """\
 SELECT COUNT(*) FROM images WHERE ds_id = %s"""
             datasets[-1]['nimages'] = db.getone(
-                query, (datasets[-1]['id'],))[0]
+                query, datasets[-1]['id'])[0]
         if 'nsources' in extra_info:
             query = """\
 SELECT COUNT(*) FROM runningcatalog WHERE ds_id = %s"""
             datasets[-1]['nsources'] = db.getone(
-                query, (datasets[-1]['id'],))[0]
+                query, datasets[-1]['id'])[0]
         if 'ntotalsources' in extra_info:
             query = """\
 SELECT COUNT(*) FROM extractedsources ex, images im
 WHERE ex.image_id = im.imageid and im.ds_id = %s"""
             datasets[-1]['ntotalsources'] = db.getone(
-                query, (datasets[-1]['id'],))[0]
+                query, datasets[-1]['id'])[0]
     return datasets
 
 
@@ -124,13 +124,13 @@ def image(id=None, dataset=None, extra_info=()):
     if id is not None:  # id = 0 could be valid for some databases
         if dataset is not None:
             db.execute(
-"""SELECT * FROM images WHERE image_id = %s AND ds_id = %s""", (id, dataset))
+"""SELECT * FROM images WHERE image_id = %s AND ds_id = %s""", id, dataset)
         else:
             db.execute(
-"""SELECT * FROM images WHERE dsid = %s""", (id,))
+"""SELECT * FROM images WHERE dsid = %s""", id)
     else:
         if dataset is not None:
-            db.execute("""SELECT * FROM images WHERE ds_id = %s""", (dataset,))
+            db.execute("""SELECT * FROM images WHERE ds_id = %s""", dataset)
         else:
             db.execute("""SELECT * FROM images""")
     description = dict(
@@ -156,7 +156,7 @@ def image(id=None, dataset=None, extra_info=()):
             query = """\
 SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
             images[-1]['ntotalsources'] = db.getone(
-                query, (images[-1]['id'],))[0]
+                query, images[-1]['id'])[0]
     return images
 
 
@@ -188,15 +188,15 @@ def transient(id=None, dataset=None):
             db.execute("""\
 SELECT * FROM transients tr, runningcatalog rc
 WHERE tr.transientid = %s AND tr.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s""",
-                       (id, dataset))
+                       id, dataset)
         else:
             db.execute("""\
-SELECT * FROM transients WHERE transientsid = %s""", (id,))
+SELECT * FROM transients WHERE transientsid = %s""", id)
     else:
         if dataset is not None:
             db.execute("""\
 SELECT * FROM transients tr, runningcatalog rc
-WHERE tr.xtrsrc_id = rc.xtrsrc_id AND ds_id = %s""", (dataset,))
+WHERE tr.xtrsrc_id = rc.xtrsrc_id AND ds_id = %s""", dataset)
         else:
             db.execute("""SELECT * FROM transients""")
     description = dict(
@@ -247,14 +247,14 @@ def source(id=None, dataset=None):
         if dataset is not None:
             db.execute("""
 SELECT * FROM runningcatalog
-WHERE xtrsrc_id = %s AND ds_id = %s""", (id, dataset))
+WHERE xtrsrc_id = %s AND ds_id = %s""", id, dataset)
         else:
             db.execute("""\
-SELECT * FROM runningcatalog WHERE xtrsrc_id = %s""", (id,))
+SELECT * FROM runningcatalog WHERE xtrsrc_id = %s""", id)
     else:
         if dataset is not None:
             db.execute("""\
-SELECT * FROM runningcatalog WHERE ds_id = %s""", (dataset,))
+SELECT * FROM runningcatalog WHERE ds_id = %s""", dataset)
         else:
             db.execute("""SELECT * FROM runningcatalog""")
     description = dict(
@@ -301,15 +301,15 @@ def extractedsource(id=None, dataset=None):
             db.execute("""
 SELECT * FROM extractedsources ex, images im
 WHERE ex.xtrsrcid = %s AND ex.image_id = im.imageid AND
-im.ds_id = %s""", (id, dataset))
+im.ds_id = %s""", id, dataset)
         else:
             db.execute("""\
-SELECT * FROM extractedsources WHERE xtrsrcid = %s""", (id,))
+SELECT * FROM extractedsources WHERE xtrsrcid = %s""", id)
     else:
         if dataset is not None:
             db.execute("""\
 SELECT * FROM extractedsources ex, images im
-WHERE ex.image_id = im.imageid AND im.ds_id = %s""", (dataset,))
+WHERE ex.image_id = im.imageid AND im.ds_id = %s""", dataset)
         else:
             db.execute("""SELECT * FROM extractedsources""")
     description = dict(
@@ -358,7 +358,7 @@ SELECT * FROM monitoringlist WHERE userentry = TRUE"""
     query = """\
 SELECT * FROM monitoringlist ml, runningcatalog rc
 WHERE ml.userentry = FALSE AND ml.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s"""
-    db.execute(query, (dataset,))
+    db.execute(query, dataset)
     description = dict(
         [(d[0], i) for i, d in enumerate(db.cursor.description)])
     for row in db.cursor.fetchall():
@@ -381,8 +381,7 @@ def update_monitoringlist(ra, dec):
 INSERT INTO monitoringlist
 (xtrsrc_id, ra, decl, userentry)
 VALUES (-1, %s, %s, TRUE)"""
-    print 'executing query', query % (ra, dec)
-    db.execute(query, (ra, dec))
+    db.execute(query, ra, dec)
     db.commit()
     db.close()
 
