@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from .tools import dbase
 from .tools import plot
+from .forms import MonitoringListForm
 from tkp.database.database import DataBase
 import tkp.database.dataset as dbset
 import tkp.database.utils as tkpdbutils
@@ -235,3 +236,57 @@ class ExtractedSourceView(TemplateResponseMixin, View):
             {'extractedsource': extractedsource,
              'dataset': dataset}
             )
+
+
+class MonitoringListView(TemplateResponseMixin, View):
+    template_name = 'dataset/monitoringlist.html'
+
+    def get(self, request, dataset, form=None):
+        sources = dbase.monitoringlist(dataset=dataset)
+        dataset = dbase.dataset(id=dataset)[0]
+        if not form:
+            form = MonitoringListForm()
+        return self.render_to_response(
+            {'sources': sources,
+             'dataset': dataset,
+             'form': form}
+            )
+
+    def post(self, request, dataset):
+        if not request.user.has_perm('monitoringlist.change_monitoringlist'):
+            raise HttpResponseForbidden
+        form = MonitoringListForm(request.POST)
+        if form.is_valid():
+            dbase.update_monitoringlist(form.cleaned_data['ra'],
+                                        form.cleaned_data['dec'])
+            return HttpResponseRedirect(reverse(
+                'dataset:monitoringlist',
+                kwargs={'dataset': dataset}))
+        self.get(request, dataset, form=form)
+
+
+class TransientLightcurveView(View):
+
+    def get(self, request, dataset, id):
+        transient = dbase.transient(id=id, dataset=dataset)
+        if not transient:
+            raise Http404
+        else:
+            transient = transient[0]
+        return self.render_to_response({'id': transient['xtrsrc_id']})
+    
+    def render_to_response(self, context, **kwargs):
+        response = HttpResponse(mimetype="image/png")
+        plot.lightcurve(context['id'], response=response)
+        return response
+
+
+class SourceLightcurveView(View):
+
+    def get(self, request, dataset, id):
+        return self.render_to_response({'id': id})
+    
+    def render_to_response(self, context, **kwargs):
+        response = HttpResponse(mimetype="image/png")
+        plot.lightcurve(context['id'], response=response)
+        return response
