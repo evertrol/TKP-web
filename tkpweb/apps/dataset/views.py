@@ -8,6 +8,7 @@ from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from .tools import dbase
+from .tools import plot
 from tkp.database.database import DataBase
 import tkp.database.dataset as dbset
 import tkp.database.utils as tkpdbutils
@@ -68,6 +69,7 @@ class ImageView(TemplateResponseMixin, View):
             raise Http404
         else:
             image = image[0]
+        image['png'] = plot.image(image['url'])
         dataset = dbase.dataset(id=dataset)[0]
         return self.render_to_response(
             {'image': image,
@@ -97,6 +99,8 @@ class TransientView(TemplateResponseMixin, View):
             raise Http404
         else:
             transient = transient[0]
+        transient['lightcurve'] = plot.lightcurve(
+            int(transient['xtrsrc_id']))
         dataset = dbase.dataset(id=dataset)[0]
         return self.render_to_response(
             {'transient': transient,
@@ -125,6 +129,8 @@ class SourceView(TemplateResponseMixin, View):
             raise Http404
         else:
             source = source[0]
+        source['lightcurve'] = plot.lightcurve(
+            int(source['xtrsrc_id']))
         dataset = dbase.dataset(id=dataset)[0]
         return self.render_to_response(
             {'source': source,
