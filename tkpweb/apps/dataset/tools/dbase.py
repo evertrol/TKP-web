@@ -276,7 +276,7 @@ SELECT * FROM runningcatalog WHERE ds_id = %s""", dataset)
     return sources
 
 
-def extractedsource(id=None, dataset=None):
+def extractedsource(id=None, dataset=None, image=None):
     """Get information on one or more extractedsources from the
     database
 
@@ -288,6 +288,10 @@ def extractedsource(id=None, dataset=None):
 
         dataset (int or None): limit image(s) to given dataset, if
             any.
+
+        image (int or None): limit sources to given image. If the
+            image is not in the dataset, an empty list will be
+            returned.
         
      Returns:
 
@@ -302,20 +306,41 @@ def extractedsource(id=None, dataset=None):
     db = DataBase()
     if id is not None:  # id = 0 could be valid for some databases
         if dataset is not None:
-            db.execute("""
+            if image is not None:
+                db.execute("""
+SELECT * FROM extractedsources ex, images im
+WHERE ex.xtrsrcid = %s AND ex.image_id = im.imageid AND
+im.ds_id = %s and ex.image_id = %s""", id, dataset, image)
+            else:
+                db.execute("""
 SELECT * FROM extractedsources ex, images im
 WHERE ex.xtrsrcid = %s AND ex.image_id = im.imageid AND
 im.ds_id = %s""", id, dataset)
         else:
-            db.execute("""\
+            if image is not None:
+                db.execute("""\
+SELECT * FROM extractedsources WHERE xtrsrcid = %s
+AND image_id = %s""", id, image)
+            else:
+                db.execute("""\
 SELECT * FROM extractedsources WHERE xtrsrcid = %s""", id)
     else:
         if dataset is not None:
-            db.execute("""\
+            if image is not None:
+                db.execute("""\
+SELECT * FROM extractedsources ex, images im
+WHERE ex.image_id = im.imageid AND im.ds_id = %s
+AND ex.image_id = %s""", dataset, image)
+            else:
+                db.execute("""\
 SELECT * FROM extractedsources ex, images im
 WHERE ex.image_id = im.imageid AND im.ds_id = %s""", dataset)
         else:
-            db.execute("""SELECT * FROM extractedsources""")
+            if image is not None:
+                db.execute("""\
+SELECT * FROM extractedsources WHERE image_id = %s""", image)
+            else:
+                db.execute("""SELECT * FROM extractedsources""")
     description = dict(
         [(d[0], i) for i, d in enumerate(db.cursor.description)])
     sources = []

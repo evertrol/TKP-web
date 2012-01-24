@@ -7,19 +7,30 @@ from scipy.stats import scoreatpercentile
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.patches import Circle
 from .image import open_image
 import dbase
 
 
-def image(url, scale=0.9):
-    image = open_image(url)
+def image(dbimage, scale=0.9, plotsources=False):
+    image = open_image(dbimage['url'])
+    source_coords = []
+    if plotsources:
+        sources = dbase.extractedsource(image=dbimage['id'])
+        for source in sources:
+            source_coords.append(
+                image.wcs.s2p((source['ra'], source['decl'])))
     flat_data = image.data.flatten()
     low = scoreatpercentile(flat_data, per=50-scale*50)
     high = scoreatpercentile(flat_data, per=50+scale*50)
     figure = Figure(figsize=(5, 5))
     axes = figure.add_subplot(1, 1, 1)
-    axes.imshow(image.data, cmap=matplotlib.cm.get_cmap('gray'),
-                norm=matplotlib.colors.Normalize(low, high, clip=True))
+    axes.imshow(numpy.transpose(image.data),
+                cmap=matplotlib.cm.get_cmap('gray'),
+                norm=matplotlib.colors.Normalize(low, high, clip=True),
+                origin='lower')
+    for coord in source_coords:
+        axes.add_patch(Circle(coord, radius=20, color='g', fill=False))
     canvas = FigureCanvasAgg(figure)
     memfig = StringIO.StringIO()
     canvas.print_figure(memfig, format='png', transparent=True)

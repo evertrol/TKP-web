@@ -22,7 +22,7 @@
 {% for image in images %}
 <tr class="{% cycle 'odd' 'even' %}">
 <td><a href="{% url 'dataset:image' dataset=dataset.id id=image.id %}">{{ image.id }}</a></td>
-<td>{{ image.ra|stringformat:".3f" }}, {{ image.dec|stringformat:".3f" }}</td>
+<td>{% if image.ra and image.dec %}{{ image.ra|stringformat:".3f" }}, {{ image.dec|stringformat:".3f" }}{% else %}-{% endif %}</td>
 <td>{{ image.obsstart|date:"c" }}</td>
 <td>{{ image.inttime }}</td>
 <td>{{ image.frequency|prefixformat:"M"|stringformat:".3f" }}</td>

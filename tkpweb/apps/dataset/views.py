@@ -70,11 +70,19 @@ class ImageView(TemplateResponseMixin, View):
             raise Http404
         else:
             image = image[0]
-        image['png'] = plot.image(image['url'])
+        image['png'] = plot.image(image)
         dataset = dbase.dataset(id=dataset)[0]
+        sources = []
+        if request.GET:
+            extra_options = request.GET.getlist('extra')
+            if 'plotsources' in extra_options:
+                image['sources'] = plot.image(image, plotsources=True)
+            if 'listsources' in extra_options:
+                sources = dbase.extractedsource(image=image['id'])
         return self.render_to_response(
             {'image': image,
-             'dataset': dataset}
+             'dataset': dataset,
+             'sources': sources}
             )
 
 
