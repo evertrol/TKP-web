@@ -16,13 +16,14 @@ $nav-width: 13em;
 $dt-size: 11em;
 $table-lines: 1px solid #999;
 
+
 html
 {
   padding: 0;
   margin: 0;
   height: 100%;
   font-family: Verdana, Tahoma, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 body
@@ -196,5 +197,6 @@ table
   {
     padding: 0.2em 0.6em;
     border-left: $table-lines;
+    text-align: right;
   }
 }
