@@ -1,5 +1,5 @@
 {% extends "dataset/base.html" %}
-{% load url from future %}
+{% load url from future %}{% load formatting %}
 {% block main %}
 <h1>Image #{{ image.id }}</h1>
 
@@ -8,18 +8,22 @@
 
 <dl>
   <dt>Phase center</dt>
-  <dd>({{ image.ra }}, {{ image.dec }})</dd>
+  <dd>({{ image.ra|stringformat:".3f" }}, {{ image.dec|stringformat:".3f" }})</dd>
   <dt>Observation start</dt>
-  <dd>{{ image.obsstart }}</dd>
+  <dd>{{ image.obsstart|date:"c" }}</dd>
   <dt>Integration time</dt>
   <dd>{{ image.inttime }}</dd>
   <dt>Frequency</dt>
-  <dd>{{ image.frequency }}</dd>
+  <dd>{{ image.frequency|prefixformat:"M"|stringformat:".3f" }} MHz.</dd>
   <dt>Bandwidth</dt>
-  <dd>{{ image.bandwidth }}</dd>
+  <dd>{{ image.bandwidth|prefixformat:"M"|stringformat:".3f" }} MHz.</dd>
   <dt>Dataset</dt>
   <dd><a href="{% url 'dataset:dataset' id=image.dataset %}">{{ image.dataset }}</a></dd>
 </dl>
+
+<h2>Quick view</h2>
+
+<img src="{{ image.png }}" />
 <!--
         "imageid"     INTEGER       NOT NULL       DEFAULT next value for "trap"."seq_images",
         "ds_id"       INTEGER       NOT NULL,

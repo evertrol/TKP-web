@@ -25,9 +25,10 @@
 <h2>Details</h2>
 
 <ul>
-  <li>{{ dataset.ntransients }} detected transients; <a href="{% url 'dataset:transients' dataset=dataset.id  %}">view list</a></li>
-  <li>{{ dataset.nimages }} available images <a href="{% url 'dataset:images' dataset=dataset.id  %}">view list</a></li>
-  <li>{{ dataset.nsources }} unique sources; <a href="{% url 'dataset:sources' dataset=dataset.id  %}">view list</a></li>
-  <li>{{ dataset.ntotalsources }} total detected sources; <a href="{% url 'dataset:extractedsources' dataset=dataset.id %}">view list</a></li>
+  <li><a href="{% url 'dataset:transients' dataset=dataset.id  %}">{{ dataset.ntransients }} detected transients</a></li>
+  <li><a href="{% url 'dataset:images' dataset=dataset.id  %}">{{ dataset.nimages }} available images</a></li>
+  <li><a href="{% url 'dataset:sources' dataset=dataset.id  %}">{{ dataset.nsources }} unique sources</a></li>
+  <li><a href="{% url 'dataset:extractedsources' dataset=dataset.id %}">{{ dataset.ntotalsources }} total detected sources</a></li>
+  <li><a href="{% url 'dataset:monitoringlist' dataset=dataset.id %}">Monitoring list</a></li>
 </ul>
 {% endblock main %}

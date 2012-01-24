@@ -8,12 +8,17 @@
 
 <dl>
   <dt>Position</dt>
-  <dd>({{ source.wm_ra }}&deg;, {{ source.wm_decl }}&deg;) &pm; ({{ source.wm_ra_err }}&Prime;, {{ source.wm_decl_err }}&Prime;)</dd>
+  <dd>({{ source.wm_ra|stringformat:".3f" }}&deg;, {{ source.wm_decl|stringformat:".3f" }}&deg;) &pm; ({{ source.wm_ra_err|stringformat:".3f" }}&Prime;, {{ source.wm_decl_err|stringformat:".3f" }}&Prime;)</dd>
   <dt># of datapoints</dt>
   <dd>{{ source.datapoints }}</dd>
   <dt>Dataset</dt>
   <dd><a href="{% url 'dataset:dataset' id=source.dataset %}">{{ source.dataset }}</a></dd>
 </dl>
-<!--
--->
+
+{% if source.lightcurve %}
+<h2>Lightcurve</h2>
+
+<img src="{{ source.lightcurve }}" />
+{% endif %}
+
 {% endblock main %}

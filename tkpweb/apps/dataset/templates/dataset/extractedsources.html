@@ -1,7 +1,7 @@
 {% extends "dataset/base.html" %}
-{% load url from future %}
+{% load url from future %}{% load formatting %}
 {% block main %}
-<h1>Extractedsources for Dataset # {{ extractedsources.0.dataset }}</h1>
+<h1>Extractedsources for Dataset # {{ dataset.id }}</h1>
 
 <table>
 <thead>
@@ -38,21 +38,21 @@
 {% for extractedsource in extractedsources %}
 <tr class="{% cycle 'odd' 'even' %}">
 <td><a href="{% url 'dataset:extractedsource' dataset=dataset.id id=extractedsource.id %}">{{ extractedsource.id }}</a></td>
-<td>{{ extractedsource.ra }}</td>
-<td> {{ extractedsource.decl }}</td>
-<td>{{ extractedsource.ra_err }}</td>
-<td> {{ extractedsource.decl_err }}</td>
-<td>{{ extractedsource.det_sigma }}</td>
+<td>{{ extractedsource.ra|stringformat:".3f" }}</td>
+<td> {{ extractedsource.decl|stringformat:".3f" }}</td>
+<td>{{ extractedsource.ra_err|stringformat:".3f" }}</td>
+<td> {{ extractedsource.decl_err|stringformat:".3f" }}</td>
+<td>{{ extractedsource.det_sigma|stringformat:".3f" }}</td>
 {% for flux in extractedsource.flux.peak %}
 {% if forloop.counter == 1 %}
-<td>{% if flux.value %}{{ flux.value }}{% else %}-{% endif %}</td>
-<td>{% if flux.error %}{{ flux.error }}{% else %}-{% endif %}</td>
+<td>{% if flux.value %}{{ flux.value|stringformat:".3f" }}{% else %}-{% endif %}</td>
+<td>{% if flux.error %}{{ flux.error|stringformat:".3f" }}{% else %}-{% endif %}</td>
 {% endif %}
 {% endfor %}
 {% for flux in extractedsource.flux.int %}
 {% if forloop.counter == 1 %}
-<td>{% if flux.value %}{{ flux.value }}{% else %}-{% endif %}</td>
-<td>{% if flux.error %}{{ flux.error }}{% else %}-{% endif %}</td>
+<td>{% if flux.value %}{{ flux.value|stringformat:".3f" }}{% else %}-{% endif %}</td>
+<td>{% if flux.error %}{{ flux.error|stringformat:".3f" }}{% else %}-{% endif %}</td>
 {% endif %}
 {% endfor %}
 </tr>

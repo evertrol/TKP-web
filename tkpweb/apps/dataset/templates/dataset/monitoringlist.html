@@ -1,0 +1,47 @@
+{% extends "dataset/base.html" %}
+{% load url from future %}
+{% block main %}
+<h1>Monitoring list for Dataset # {{ dataset.id }}</h1>
+
+<table>
+<thead>
+<tr>
+<th>Source #</th>
+<th>Right Ascension</th>
+<th>Declination</th>
+<th>User entry</th>
+</tr>
+</thead>
+<tbody>
+{% for source in sources %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td>{% if source.xtrsrc_id > 0 %}<a href="{% url 'dataset:source' dataset=dataset.id id=source.xtrsrc_id%}">{{ source.xtrsrc_id }}</a>{% else %}-{% endif %}</td>
+<td>{{ source.ra|stringformat:".3f" }}</td>
+<td> {{ source.decl|stringformat:".3f" }}</td>
+<td>{% if source.userentry %}&#x2713;{% else %}-{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+{% if request.user.is_authenticated %}{% if perms.monitoringlist.change_monitoringlist %}
+<hr />
+<h2>Add a new source</h2>
+<form action="{% url 'dataset:monitoringlist' dataset=dataset.id %}" method="post">{% csrf_token %}
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" value="Submit" />
+</form>
+{% endif %}{% endif %}
+{% comment %}
+sql>\d monitoringlist
+        "monitorid" INTEGER       NOT NULL       DEFAULT next value for "trap"."seq_monitoringlist",
+        "xtrsrc_id" INTEGER,
+        "ra"        DOUBLE        DEFAULT 0,
+        "decl"      DOUBLE        DEFAULT 0,
+        "userentry" BOOLEAN       DEFAULT false,
+        "image_id"  INTEGER       DEFAULT 0,
+        CONSTRAINT "monitoringlist_monitorid_pkey" PRIMARY KEY ("monitorid")
+{% endcomment %}
+{% endblock main %}

@@ -1,5 +1,5 @@
 {% extends "dataset/base.html" %}
-{% load url from future %}
+{% load url from future %}{% load formatting %}
 {% block main %}
 <h1>Extractedsource #{{ extractedsource.id }}</h1>
 
@@ -8,16 +8,16 @@
 
 <dl>
   <dt>Position</dt>
-  <dd>({{ extractedsource.ra }}&deg;, {{ extractedsource.decl }}&deg;) &pm; ({{ extractedsource.ra_err }}&Prime;, {{ extractedsource.decl_err }}&Prime;)</dd>
+  <dd>({{ extractedsource.ra|stringformat:".3f" }}&deg;, {{ extractedsource.decl|stringformat:".3f" }}&deg;) &pm; ({{ extractedsource.ra_err|stringformat:".3f" }}&Prime;, {{ extractedsource.decl_err|stringformat:".3f" }}&Prime;)</dd>
   <dt>Signal to noise</dt>
-  <dd>{{ extractedsource.det_sigma }}</dd>
+  <dd>{{ extractedsource.det_sigma|stringformat:".3f" }}</dd>
   <dt>Peak flux</dt>
   <dd>
 <table>
 <thead><tr><th>Stokes</th><th>Flux (Jy)</th><th>Error (Jy)</th></tr></thead>
 <tbody>
 {% for flux in extractedsource.flux.peak %}
-<tr><th>{{ flux.stokes|upper }}</th><td>{% if flux.value %}{{ flux.value }}{% else %}-{% endif %}</td><td>{% if flux.error %}{{ flux.error }}{% else %}-{% endif %}</td></tr>
+<tr><th>{{ flux.stokes|upper }}</th><td>{% if flux.value %}{{ flux.value|stringformat:".3f" }}{% else %}-{% endif %}</td><td>{% if flux.error %}{{ flux.error|stringformat:".3f" }}{% else %}-{% endif %}</td></tr>
 {% endfor %}
 </tbody>
 </table>
@@ -28,7 +28,7 @@
 <thead><tr><th>Stokes</th><th>Flux (Jy)</th><th>Error (Jy)</th></tr></thead>
 <tbody>
 {% for flux in extractedsource.flux.int %}
-<tr><th>{{ flux.stokes|upper }}</th><td>{% if flux.value %}{{ flux.value }}{% else %}-{% endif %}</td><td>{% if flux.error %}{{ flux.error }}{% else %}-{% endif %}</td></tr>
+<tr><th>{{ flux.stokes|upper }}</th><td>{% if flux.value %}{{ flux.value|prefixformat:"m"|stringformat:".3f" }}{% else %}-{% endif %}</td><td>{% if flux.error %}{{ flux.error|stringformat:".3f" }}{% else %}-{% endif %}</td></tr>
 {% endfor %}
 </tbody>
 </table>

@@ -1,5 +1,5 @@
 {% extends "dataset/base.html" %}
-{% load url from future %}
+{% load url from future %}{% load formatting %}
 {% block main %}
 <h1>Images for Dataset # {{ images.0.dataset }}</h1>
 
@@ -10,11 +10,11 @@
 <th>Phase center</th>
 <!-- <th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'dsid' and ordering.1 == 'ASC' %}-{% endif %}dsid">id</a></th> -->
 <!-- <th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'dstype' and ordering.1 == 'ASC' %}-{% endif %}dstype">type</a></th> -->
-<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'description' and ordering.1 == 'ASC' %}-{% endif %}description">Start time (seconds)</a></th>
+<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'description' and ordering.1 == 'ASC' %}-{% endif %}description">Start date (UT)</a></th>
 <th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'dsinname' and ordering.1 == 'ASC' %}-{% endif %}name">Integration time (seconds)</a></th>
 <!-- <th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'dsoutname' and ordering.1 == 'ASC' %}-{% endif %}dsoutname">out name</a></th> -->
-<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'rerun' and ordering.1 == 'ASC' %}-{% endif %}rerun">Frequency (Hertz)</a></th>
-<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'process_ts' and ordering.1 == 'ASC' %}-{% endif %}process_ts">Bandwidth (Hertz)</a></th>
+<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'rerun' and ordering.1 == 'ASC' %}-{% endif %}rerun">Frequency (MHz.)</a></th>
+<th><a href="{% url 'dataset:images' dataset=dataset.id %}?order={% if ordering.0 == 'process_ts' and ordering.1 == 'ASC' %}-{% endif %}process_ts">Bandwidth (MHz.)</a></th>
 <th>Number of sources in image</th>
 </tr>
 </thead>
@@ -22,11 +22,11 @@
 {% for image in images %}
 <tr class="{% cycle 'odd' 'even' %}">
 <td><a href="{% url 'dataset:image' dataset=dataset.id id=image.id %}">{{ image.id }}</a></td>
-<td>{{ image.ra }}, {{ image.dec }}</td>
-<td>{{ image.obsstart }}</td>
+<td>{{ image.ra|stringformat:".3f" }}, {{ image.dec|stringformat:".3f" }}</td>
+<td>{{ image.obsstart|date:"c" }}</td>
 <td>{{ image.inttime }}</td>
-<td>{{ image.frequency }}</td>
-<td>{{ image.bandwidth }}</td>
+<td>{{ image.frequency|prefixformat:"M"|stringformat:".3f" }}</td>
+<td>{{ image.bandwidth|prefixformat:"M"|stringformat:".3f"  }}</td>
 <td>{{ image.ntotalsources }}</td>
 </tr>
 {% endfor %}

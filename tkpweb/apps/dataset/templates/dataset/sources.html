@@ -19,10 +19,10 @@
 {% for source in sources %}
 <tr class="{% cycle 'odd' 'even' %}">
 <td><a href="{% url 'dataset:source' dataset=dataset.id id=source.id %}">{{ source.id }}</a></td>
-<td>{{ source.wm_ra }}</td>
-<td>{{ source.wm_decl }}</td>
-<td>{{ source.wm_ra_err }}</td>
-<td>{{ source.wm_decl_err }}</td>
+<td>{{ source.wm_ra|stringformat:".3f" }}</td>
+<td>{{ source.wm_decl|stringformat:".3f" }}</td>
+<td>{{ source.wm_ra_err|stringformat:".3f" }}</td>
+<td>{{ source.wm_decl_err|stringformat:".3f" }}</td>
 <td>{{ source.datapoints }}</td>
 </tr>
 {% endfor %}

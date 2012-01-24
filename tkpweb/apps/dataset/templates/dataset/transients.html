@@ -1,7 +1,7 @@
 {% extends "dataset/base.html" %}
-{% load url from future %}
+{% load url from future %}{% load formatting %}
 {% block main %}
-<h1>Transients for Dataset # {{ transients.0.dataset }}</h1>
+<h1>Transients for Dataset # {{ dataset.id }}</h1>
 
 <table>
 <thead>
@@ -20,9 +20,9 @@
 {% for transient in transients %}
 <tr class="{% cycle 'odd' 'even' %}">
 <td><a href="{% url 'dataset:transient' dataset=dataset.id id=transient.id %}">{{ transient.id }}</a></td>
-<td>{{ transient.wm_ra }}, {{ transient.wm_dec }}</td>
-<td>{{ transient.startdate }}</td>
-<td>{{ transient.siglevel }}</td>
+<td>{{ transient.wm_ra|stringformat:".3f" }}, {{ transient.wm_decl|stringformat:".3f" }}</td>
+<td>{% if transient.startdate %}{{ transient.startdate|date:"c" }}{% else %}-{% endif %}</td>
+<td>{{ transient.siglevel|stringformat:".3f" }}</td>
 <!-- <td>{{ transient.detection_level }}</td> -->
 <!-- <td>{{ transient.status }}</td> -->
 <td>{{ transient.datapoints }}</td>
