@@ -1,0 +1,10 @@
+{% extends "dataset/base.html" %}
+{% block main %}
+<h1>Databases</h1>
+
+<ul>
+{% for database in databases %}
+<li>{% if database == selected %}{{ database }} (current){% else %}<a href="{% url database:database database %}">{{ database }}</a>{% endif %}</li>
+{% endfor %}
+</ul>
+{% endblock main %}

@@ -26,7 +26,8 @@ class DatasetsView(TemplateResponseMixin, View):
         """List all available datasets, together with a bit of
         extra information"""
 
-        datasets = dbase.dataset(extra_info=["ntransients"])
+        datasets = dbase.dataset(extra_info=["ntransients"],
+                                 dblogin=request.session.get('monetdb', None))
         return self.render_to_response(
             {'datasets': datasets}
             )
@@ -39,7 +40,8 @@ class DatasetView(TemplateResponseMixin, View):
         """List details for single dataset"""
 
         dataset = dbase.dataset(id=id, extra_info=[
-            "ntransients", "nimages", "nsources", "ntotalsources"])
+            "ntransients", "nimages", "nsources", "ntotalsources"],
+                                dblogin=request.session.get('monetdb', None))
         if not dataset:
             raise Http404
         else:
@@ -53,8 +55,10 @@ class ImagesView(TemplateResponseMixin, View):
     template_name = "dataset/images.html"
 
     def get(self, request, dataset):
-        images = dbase.image(dataset=dataset, extra_info=['ntotalsources'])
-        dataset = dbase.dataset(id=dataset)[0]
+        images = dbase.image(dataset=dataset, extra_info=['ntotalsources'],
+                             dblogin=request.session.get('monetdb', None))
+        dataset = dbase.dataset(id=dataset,
+                                dblogin=request.session.get('monetdb', None))[0]
         return self.render_to_response(
             {'images': images,
              'dataset': dataset}
@@ -65,20 +69,23 @@ class ImageView(TemplateResponseMixin, View):
     template_name = "dataset/image.html"
 
     def get(self, request, dataset, id):
-        image = dbase.image(dataset=dataset, extra_info=['ntotalsources'])
+        image = dbase.image(dataset=dataset, extra_info=['ntotalsources'],
+                            dblogin=request.session.get('monetdb', None))
         if not image:
             raise Http404
         else:
             image = image[0]
-        image['png'] = plot.image(image)
-        dataset = dbase.dataset(id=dataset)[0]
+        image['png'] = plot.image(image, dblogin=request.session.get('monetdb', None))
+        dataset = dbase.dataset(id=dataset,
+                                dblogin=request.session.get('monetdb', None))[0]
         sources = []
         if request.GET:
             extra_options = request.GET.getlist('extra')
             if 'plotsources' in extra_options:
-                image['sources'] = plot.image(image, plotsources=True)
+                image['sources'] = plot.image(image, plotsources=True, dblogin=request.session.get('monetdb', None))
             if 'listsources' in extra_options:
-                sources = dbase.extractedsource(image=image['id'])
+                sources = dbase.extractedsource(image=image['id'],
+                                                dblogin=request.session.get('monetdb', None))
         return self.render_to_response(
             {'image': image,
              'dataset': dataset,
@@ -91,8 +98,8 @@ class TransientsView(TemplateResponseMixin, View):
     template_name = "dataset/transients.html"
 
     def get(self, request, dataset):
-        transients = dbase.transient(dataset=dataset)
-        dataset = dbase.dataset(id=dataset)[0]
+        transients = dbase.transient(dataset=dataset, dblogin=request.session.get('monetdb', None))
+        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('monetdb', None))[0]
         return self.render_to_response(
             {'transients': transients,
              'dataset': dataset}
@@ -103,14 +110,14 @@ class TransientView(TemplateResponseMixin, View):
     template_name = "dataset/transient.html"
 
     def get(self, request, dataset, id):
-        transient = dbase.transient(id=id, dataset=dataset)
+        transient = dbase.transient(id=id, dataset=dataset, dblogin=request.session.get('monetdb', None))
         if not transient:
             raise Http404
         else:
             transient = transient[0]
         transient['lightcurve'] = plot.lightcurve(
-            int(transient['xtrsrc_id']))
-        dataset = dbase.dataset(id=dataset)[0]
+            int(transient['xtrsrc_id']), dblogin=request.session.get('monetdb', None))
+        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('monetdb', None))[0]
         return self.render_to_response(
             {'transient': transient,
              'dataset': dataset}
@@ -121,8 +128,8 @@ class SourcesView(TemplateResponseMixin, View):
     template_name = "dataset/sources.html"
 
     def get(self, request, dataset):
-        sources = dbase.source(dataset=dataset)
-        dataset = dbase.dataset(id=dataset)[0]
+        sources = dbase.source(dataset=dataset, dblogin=request.session.get('monetdb', None))
+        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('monetdb', None))[0]
         return self.render_to_response(
             {'sources': sources,
              'dataset': dataset}
@@ -133,14 +140,14 @@ class SourceView(TemplateResponseMixin, View):
     template_name = "dataset/source.html"
 
     def get(self, request, dataset, id):
-        source = dbase.source(id=id, dataset=dataset)
+        source = dbase.source(id=id, dataset=dataset, dblogin=request.session.get('monetdb', None))
         if not source:
             raise Http404
         else:
             source = source[0]
         source['lightcurve'] = plot.lightcurve(
-            int(source['xtrsrc_id']))
-        dataset = dbase.dataset(id=dataset)[0]
+            int(source['xtrsrc_id']), dblogin=request.session.get('monetdb', None))
+        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('monetdb', None))[0]
         return self.render_to_response(
             {'source': source,
              'dataset': dataset}
@@ -182,8 +189,8 @@ class ExtractedSourcesView(TemplateResponseMixin, View):
 #        dataset = dict([(key, row[column]) for key, column in
 #                        description.iteritems()])
 #        dataset['id'] = dataset['dsid']
-        extractedsources = dbase.extractedsource(dataset=dataset)
-        dataset = dbase.dataset(id=dataset)[0]
+        extractedsources = dbase.extractedsource(dataset=dataset, dblogin=request.session.get('monetdb', None))
+        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('monetdb', None))[0]
         return self.render_to_response(
             {'extractedsources': extractedsources,
              'dataset': dataset}
@@ -234,12 +241,12 @@ class ExtractedSourceView(TemplateResponseMixin, View):
 #        image = dict([(key, row[column]) for key, column in
 #                        description.iteritems()])
 #        image['id'] = image['imageid']
-        extractedsource = dbase.extractedsource(id=id, dataset=dataset)
+        extractedsource = dbase.extractedsource(id=id, dataset=dataset, dblogin=request.session.get('monetdb', None))
         if not extractedsource:
             raise Http404
         else:
             extractedsource = extractedsource[0]
-        dataset = dbase.dataset(id=dataset)[0]
+        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('monetdb', None))[0]
         return self.render_to_response(
             {'extractedsource': extractedsource,
              'dataset': dataset}
@@ -250,8 +257,8 @@ class MonitoringListView(TemplateResponseMixin, View):
     template_name = 'dataset/monitoringlist.html'
 
     def get(self, request, dataset, form=None):
-        sources = dbase.monitoringlist(dataset=dataset)
-        dataset = dbase.dataset(id=dataset)[0]
+        sources = dbase.monitoringlist(dataset=dataset, dblogin=request.session.get('monetdb', None))
+        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('monetdb', None))[0]
         if not form:
             form = MonitoringListForm()
         return self.render_to_response(
@@ -266,7 +273,8 @@ class MonitoringListView(TemplateResponseMixin, View):
         form = MonitoringListForm(request.POST)
         if form.is_valid():
             dbase.update_monitoringlist(form.cleaned_data['ra'],
-                                        form.cleaned_data['dec'])
+                                        form.cleaned_data['dec'],
+                                        dblogin=request.session.get('monetdb', None))
             return HttpResponseRedirect(reverse(
                 'dataset:monitoringlist',
                 kwargs={'dataset': dataset}))
@@ -276,7 +284,7 @@ class MonitoringListView(TemplateResponseMixin, View):
 class TransientLightcurveView(View):
 
     def get(self, request, dataset, id):
-        transient = dbase.transient(id=id, dataset=dataset)
+        transient = dbase.transient(id=id, dataset=dataset, dblogin=request.session.get('monetdb', None))
         if not transient:
             raise Http404
         else:
@@ -285,7 +293,7 @@ class TransientLightcurveView(View):
     
     def render_to_response(self, context, **kwargs):
         response = HttpResponse(mimetype="image/png")
-        plot.lightcurve(context['id'], response=response)
+        plot.lightcurve(context['id'], response=response, dblogin=self.request.session.get('monetdb', None))
         return response
 
 
@@ -296,5 +304,5 @@ class SourceLightcurveView(View):
     
     def render_to_response(self, context, **kwargs):
         response = HttpResponse(mimetype="image/png")
-        plot.lightcurve(context['id'], response=response)
+        plot.lightcurve(context['id'], response=response, dblogin=self.request.session.get('monetdb', None))
         return response

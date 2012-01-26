@@ -5,9 +5,10 @@ from tkp.utility.accessors import FITSImage
 from tkp.utility.accessors import CASAImage
 from scipy.stats import chisqprob
 from .image import open_image
+from tkpweb import settings
 
 
-def dataset(id=None, extra_info=()):
+def dataset(id=None, extra_info=(), dblogin=None):
     """Get information on one or more datasets form the database
 
     Kwargs:
@@ -44,7 +45,8 @@ def dataset(id=None, extra_info=()):
     """
 
     extra_info = set(extra_info)
-    db = DataBase()
+    db = DataBase(**dblogin) if dblogin else DataBase()
+    print db.name
     if id is not None:  # id = 0 could be valid for some databases
         db.execute("""SELECT * FROM datasets WHERE dsid = %s""", id)
     else:
@@ -86,7 +88,7 @@ WHERE ex.image_id = im.imageid and im.ds_id = %s"""
     return datasets
 
 
-def image(id=None, dataset=None, extra_info=()):
+def image(id=None, dataset=None, extra_info=(), dblogin=None):
     """Get information on one or more datasets form the database
 
     Kwargs:
@@ -119,8 +121,8 @@ def image(id=None, dataset=None, extra_info=()):
             single-element list.
     """
 
+    db = DataBase(**dblogin) if dblogin else DataBase()
     extra_info = set(extra_info)
-    db = DataBase()
     if id is not None:  # id = 0 could be valid for some databases
         if dataset is not None:
             db.execute(
@@ -148,7 +150,7 @@ def image(id=None, dataset=None, extra_info=()):
              'dataset']):
             images[-1][key2] = images[-1][key1]
         # Open image to obtain phase center
-        img = open_image(images[-1]['url'])
+        img = open_image(images[-1]['url'], dblogin=dblogin)
         header = img.get_header()
         try:
             images[-1]['ra'] = header['phasera']
@@ -164,7 +166,7 @@ SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
     return images
 
 
-def transient(id=None, dataset=None):
+def transient(id=None, dataset=None, dblogin=None):
     """Get information on one or more datasets form the database
 
     Kwargs:
@@ -186,7 +188,7 @@ def transient(id=None, dataset=None):
             single-element list.
     """
 
-    db = DataBase()
+    db = DataBase(**dblogin) if dblogin else DataBase()
     if id is not None:  # id = 0 could be valid for some databases
         if dataset is not None:
             db.execute("""\
@@ -221,7 +223,7 @@ WHERE tr.xtrsrc_id = rc.xtrsrc_id AND ds_id = %s""", dataset)
     return transients
 
 
-def source(id=None, dataset=None):
+def source(id=None, dataset=None, dblogin=None):
     """Get information on one or sources from the database
 
     The sources obtained are those in the runningcatalog; these are the
@@ -246,7 +248,7 @@ def source(id=None, dataset=None):
             single-element list.
     """
 
-    db = DataBase()
+    db = DataBase(**dblogin) if dblogin else DataBase()
     if id is not None:  # id = 0 could be valid for some databases
         if dataset is not None:
             db.execute("""
@@ -276,7 +278,7 @@ SELECT * FROM runningcatalog WHERE ds_id = %s""", dataset)
     return sources
 
 
-def extractedsource(id=None, dataset=None, image=None):
+def extractedsource(id=None, dataset=None, image=None, dblogin=None):
     """Get information on one or more extractedsources from the
     database
 
@@ -303,7 +305,7 @@ def extractedsource(id=None, dataset=None, image=None):
             single-element list.
     """
 
-    db = DataBase()
+    db = DataBase(**dblogin) if dblogin else DataBase()
     if id is not None:  # id = 0 could be valid for some databases
         if dataset is not None:
             if image is not None:
@@ -364,9 +366,9 @@ SELECT * FROM extractedsources WHERE image_id = %s""", image)
     return sources
 
 
-def monitoringlist(dataset=dataset):
+def monitoringlist(dataset=dataset, dblogin=None):
 
-    db = DataBase()
+    db = DataBase(**dblogin) if dblogin else DataBase()
     # Get all user defined entries
     query = """\
 SELECT * FROM monitoringlist WHERE userentry = TRUE"""
@@ -404,8 +406,8 @@ WHERE ml.userentry = FALSE AND ml.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s"""
     return sources
 
 
-def update_monitoringlist(ra, dec):
-    db = DataBase()
+def update_monitoringlist(ra, dec, dblogin=None):
+    db = DataBase(**dblogin) if dblogin else DataBase()
     query = """\
 INSERT INTO monitoringlist
 (xtrsrc_id, ra, decl, userentry)
@@ -415,11 +417,11 @@ VALUES (-1, %s, %s, TRUE)"""
     db.close()
 
 
-def lightcurve(srcid):
-   db = DataBase()
-   lc = ExtractedSource(id=srcid, database=db).lightcurve()
-   db.close()
-   return lc
+def lightcurve(srcid, dblogin=None):
+    db = DataBase(**dblogin) if dblogin else DataBase()
+    lc = ExtractedSource(id=srcid, database=db).lightcurve()
+    db.close()
+    return lc
 
 
 

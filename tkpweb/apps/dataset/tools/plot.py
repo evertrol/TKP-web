@@ -12,11 +12,11 @@ from .image import open_image
 import dbase
 
 
-def image(dbimage, scale=0.9, plotsources=False):
-    image = open_image(dbimage['url'])
+def image(dbimage, scale=0.9, plotsources=False, dblogin=None):
+    image = open_image(dbimage['url'], dblogin=dblogin)
     source_coords = []
     if plotsources:
-        sources = dbase.extractedsource(image=dbimage['id'])
+        sources = dbase.extractedsource(image=dbimage['id'], dblogin=dblogin)
         for source in sources:
             source_coords.append(
                 image.wcs.s2p((source['ra'], source['decl'])))
@@ -40,8 +40,8 @@ def image(dbimage, scale=0.9, plotsources=False):
     return encoded_png.getvalue()
 
 
-def lightcurve(srcid, T0=datetime.datetime(2010, 1, 1), response=None):
-    lc = dbase.lightcurve(srcid)
+def lightcurve(srcid, T0=datetime.datetime(2010, 1, 1), response=None, dblogin=None):
+    lc = dbase.lightcurve(srcid, dblogin=dblogin)
     T0 -= datetime.datetime(1970, 1, 1)
     T0 = (T0.microseconds + (T0.seconds + T0.days * 86400) * 1e6) / 1e6
     dates = matplotlib.dates.date2num([point[0] for point in lc])

@@ -5,7 +5,7 @@ from tkp.utility.accessors import FITSImage
 from tkp.utility.accessors import CASAImage
 
 
-def open_image(url):
+def open_image(url, dblogin=None):
     image = None
     if isinstance(url, DataAccessor):
         pass
@@ -16,7 +16,7 @@ def open_image(url):
         elif ext.lower() == '.img':
             image = AIPSppImage(url)
     elif isinstance(url, (int, long)):
-        db = DataBase()
+        db = DataBase(**dblogin) if dblogin else DataBase()
         url = Image(id=url, database=database).url
         name, ext = os.path.splitext(url)
         if ext.lower() == '.fits':

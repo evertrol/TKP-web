@@ -7,6 +7,7 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns(
     '',
     # Examples:
+    url(r'^database/', include('tkpweb.apps.database.urls', namespace='database')),
     url(r'^dataset/', include('tkpweb.apps.dataset.urls', namespace='dataset')),
     url(r'^account/', include('tkpweb.apps.account.urls', namespace='account')),
     # url(r'^tkpweb/', include('tkpweb.foo.urls')),
