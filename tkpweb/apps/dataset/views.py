@@ -1,6 +1,6 @@
 from django.views.generic import View
 from django.views.generic import TemplateView
-from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.edit import FormMixin
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.http import HttpResponse
@@ -19,290 +19,229 @@ from scipy.stats import chisqprob
 import datetime
 
 
-class DatasetsView(TemplateResponseMixin, View):
+class BaseView(TemplateView):
+
+    def get_context_data(self, **kwargs):
+        context = super(BaseView, self).get_context_data(**kwargs)
+        self.database = self.get_database(self.request.session.get('dblogin', None))
+        return context
+
+    def get_database(self, dblogin=None):
+        try:
+            return self.database
+        except AttributeError:
+            return dbase.DataBase(dblogin=dblogin)
+            
+
+class DatasetsView(BaseView):
     template_name = "dataset/datasets.html"
 
-    def get(self, request):
+    def get_context_data(self, **kwargs):
         """List all available datasets, together with a bit of
         extra information"""
-
-        datasets = dbase.dataset(extra_info=["ntransients"],
-                                 dblogin=request.session.get('dblogin', None))
-        return self.render_to_response(
-            {'datasets': datasets}
-            )
+        context = super(DatasetsView, self).get_context_data(**kwargs)
+        context['datasets'] = self.database.dataset(extra_info=["ntransients"])
+        return context
 
 
-class DatasetView(TemplateResponseMixin, View):
+class DatasetView(BaseView):
     template_name = "dataset/dataset.html"
 
-    def get(self, request, id):
+    def get_context_data(self, **kwargs):
         """List details for single dataset"""
 
-        dataset = dbase.dataset(id=id, extra_info=[
-            "ntransients", "nimages", "nsources", "ntotalsources"],
-                                dblogin=request.session.get('dblogin', None))
+        context = super(DatasetView, self).get_context_data(**kwargs)
+        dataset = self.database.dataset(id=int(kwargs['id']), extra_info=[
+            "ntransients", "nimages", "nsources", "ntotalsources"])
         if not dataset:
             raise Http404
         else:
             dataset = dataset[0]
-        return self.render_to_response(
-            {'dataset': dataset}
-            )
+        context['dataset'] = dataset
+        return context
     
     
-class ImagesView(TemplateResponseMixin, View):
+class ImagesView(BaseView):
     template_name = "dataset/images.html"
 
-    def get(self, request, dataset):
-        images = dbase.image(dataset=dataset, extra_info=['ntotalsources'],
-                             dblogin=request.session.get('dblogin', None))
-        dataset = dbase.dataset(id=dataset,
-                                dblogin=request.session.get('dblogin', None))[0]
-        return self.render_to_response(
-            {'images': images,
-             'dataset': dataset}
-            )
+    def get_context_data(self, **kwargs):
+        context = super(ImagesView, self).get_context_data(**kwargs)
+        context['images'] = self.database.image(dataset=kwargs['dataset'], extra_info=['ntotalsources'])
+        context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
+        return context
 
 
-class ImageView(TemplateResponseMixin, View):
+class ImageView(BaseView):
     template_name = "dataset/image.html"
 
-    def get(self, request, dataset, id):
-        image = dbase.image(dataset=dataset, extra_info=['ntotalsources'],
-                            dblogin=request.session.get('dblogin', None))
+    def get_context_data(self, **kwargs):
+        context = super(ImageView, self).get_context_data(**kwargs)        
+        image = self.database.image(id=kwargs['id'], dataset=kwargs['dataset'], extra_info=['ntotalsources'])
         if not image:
             raise Http404
         else:
             image = image[0]
-        image['png'] = plot.image(image, dblogin=request.session.get('dblogin', None))
-        dataset = dbase.dataset(id=dataset,
-                                dblogin=request.session.get('dblogin', None))[0]
+        image['png'] = plot.image(image, database=self.database)
+        dataset = self.database.dataset(id=kwargs['dataset'])[0]
         sources = []
-        if request.GET:
-            extra_options = request.GET.getlist('extra')
+        if self.request.GET:
+            extra_options = self.request.GET.getlist('extra')
             if 'plotsources' in extra_options:
-                image['sources'] = plot.image(image, plotsources=True, dblogin=request.session.get('dblogin', None))
+                sources = self.database.extractedsource(image=image['id'])
+                image['sources'] = plot.image(image, plotsources=sources)
             if 'listsources' in extra_options:
-                sources = dbase.extractedsource(image=image['id'],
-                                                dblogin=request.session.get('dblogin', None))
-        return self.render_to_response(
-            {'image': image,
-             'dataset': dataset,
-             'sources': sources}
-            )
+                sources = self.database.extractedsource(image=image['id'])
+        context['image'] = image
+        context['sources'] = sources
+        context['dataset'] = dataset
+        return context
 
 
 
-class TransientsView(TemplateResponseMixin, View):
+class TransientsView(BaseView):
     template_name = "dataset/transients.html"
 
-    def get(self, request, dataset):
-        transients = dbase.transient(dataset=dataset, dblogin=request.session.get('dblogin', None))
-        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('dblogin', None))[0]
-        return self.render_to_response(
-            {'transients': transients,
-             'dataset': dataset}
-            )
+    def get_context_data(self, **kwargs):
+        context = super(TransientsView, self).get_context_data(**kwargs)
+        context['transients'] = self.database.transient(dataset=kwargs['dataset'])
+        context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
+        return context
 
 
-class TransientView(TemplateResponseMixin, View):
+class TransientView(BaseView):
     template_name = "dataset/transient.html"
 
-    def get(self, request, dataset, id):
-        transient = dbase.transient(id=id, dataset=dataset, dblogin=request.session.get('dblogin', None))
+    def get_context_data(self, **kwargs):
+        context = super(TransientView, self).get_context_data(**kwargs)
+        transient = self.database.transient(id=kwargs['id'], dataset=kwargs['dataset'])
         if not transient:
             raise Http404
         else:
             transient = transient[0]
-        transient['lightcurve'] = plot.lightcurve(
-            int(transient['xtrsrc_id']), dblogin=request.session.get('dblogin', None))
-        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('dblogin', None))[0]
-        return self.render_to_response(
-            {'transient': transient,
-             'dataset': dataset}
-            )
+        transient['lightcurve'] = plot.lightcurve(self.database.lightcurve(int(transient['xtrsrc_id'])))
+        context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
+        context['transient'] = transient
+        return context
 
 
-class SourcesView(TemplateResponseMixin, View):
+class SourcesView(BaseView):
     template_name = "dataset/sources.html"
 
-    def get(self, request, dataset):
-        sources = dbase.source(dataset=dataset, dblogin=request.session.get('dblogin', None))
-        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('dblogin', None))[0]
-        return self.render_to_response(
-            {'sources': sources,
-             'dataset': dataset}
-            )
+    def get_context_data(self, **kwargs):
+        context = super(SourcesView, self).get_context_data(**kwargs)
+        context['sources'] = self.database.source(dataset=kwargs['dataset'])
+        context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
+        return context
 
 
-class SourceView(TemplateResponseMixin, View):
+class SourceView(BaseView):
     template_name = "dataset/source.html"
 
-    def get(self, request, dataset, id):
-        source = dbase.source(id=id, dataset=dataset, dblogin=request.session.get('dblogin', None))
+    def get_context_data(self, **kwargs):
+        context = super(SourceView, self).get_context_data(**kwargs)
+        source = self.database.source(id=kwargs['id'], dataset=kwargs['dataset'])
         if not source:
             raise Http404
         else:
             source = source[0]
-        source['lightcurve'] = plot.lightcurve(
-            int(source['xtrsrc_id']), dblogin=request.session.get('dblogin', None))
-        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('dblogin', None))[0]
-        return self.render_to_response(
-            {'source': source,
-             'dataset': dataset}
-            )
+        source['lightcurve'] = plot.lightcurve(self.database.lightcurve(int(source['xtrsrc_id'])))
+        context['source'] = source
+        context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
+        return context
 
 
-class ExtractedSourcesView(TemplateResponseMixin, View):
+class ExtractedSourcesView(BaseView):
     template_name = "dataset/extractedsources.html"
 
-    def get(self, request, dataset):
-#        self.db = DataBase()
-#        self.db.execute("""\
-#SELECT * FROM extractedsources ex, images im
-#WHERE ex.image_id = im.imageid AND im.ds_id = %s""", (dataset,))
-#        description = dict(
-#            [(d[0], i) for i, d in enumerate(self.db.cursor.description)])
-#        extractedsources = []
-#	for row in self.db.cursor.fetchall():
-#            extractedsources.append(
-#                dict([(key, row[column])
-#                      for key, column in description.iteritems()]))
-#            # Format into slightly nicer keys
-#            for key1, key2 in zip(['xtrsrcid',], ['id',]):
-#                extractedsources[-1][key2] = extractedsources[-1][key1]
-#            extractedsources[-1]['fluxes'] = {'peak': [], 'int': []}
-#            for key in "iquv":
-#                extractedsources[-1]['fluxes']['peak'].append(
-#                    {'flux': extractedsources[-1][key+"_peak"],
-#                     'fluxerror': extractedsources[-1][key+"_peak_err"]}
-#                    )
-#                extractedsources[-1]['fluxes']['int'].append(
-#                    {'flux': extractedsources[-1][key+"_int"],
-#                     'fluxerror': extractedsources[-1][key+"_int_err"]}
-#                     )
-#        self.db.execute("""SELECT * FROM datasets WHERE dsid = %s""", (dataset,))
-#        description = dict(
-#            [(d[0], i) for i, d in enumerate(self.db.cursor.description)])
-#        row = self.db.cursor.fetchone()
-#        dataset = dict([(key, row[column]) for key, column in
-#                        description.iteritems()])
-#        dataset['id'] = dataset['dsid']
-        extractedsources = dbase.extractedsource(dataset=dataset, dblogin=request.session.get('dblogin', None))
-        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('dblogin', None))[0]
-        return self.render_to_response(
-            {'extractedsources': extractedsources,
-             'dataset': dataset}
-            )
+    def get_context_data(self, **kwargs):
+        context = super(ExtractedSourcesView, self).get_context_data(**kwargs)
+        context['extractedsources'] = self.database.extractedsource(dataset=kwargs['dataset'])
+        context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
+        return context
 
 
-class ExtractedSourceView(TemplateResponseMixin, View):
+class ExtractedSourceView(BaseView):
     template_name = "dataset/extractedsource.html"
 
-    def get(self, request, dataset, id):
-#        self.db = DataBase()
-#        result = self.db.execute("""\
-#SELECT * FROM extractedsources ex, images im
-#WHERE ex.xtrsrcid = %s AND ex.image_id = im.imageid AND im.ds_id = %s""",
-#                                 (id, dataset))
-#        if not result:
-#            raise Http404
-#        description = dict(
-#            [(d[0], i) for i, d in enumerate(self.db.cursor.description)])
-#        row = self.db.cursor.fetchone()
-#        extractedsource = dict([(key, row[column]) for key, column in
-#                      description.iteritems()])
-#        # Format into slightly nicer keys
-#        for key1, key2 in zip(['xtrsrcid'], ['id',]):
-#            extractedsource[key2] = extractedsource[key1]
-#        extractedsource['flux'] = {'peak': [], 'int': []}
-#        for stokes in "iquv":
-#            for flux in ('peak', 'int'):
-#                extractedsource['flux'][flux].append(
-#                    {'stokes': stokes.upper(),
-#                     'value': extractedsource[stokes+"_"+flux],
-#                     'error': extractedsource[stokes+"_"+flux+"_err"]}
-#                    )
-#                
-#            
-#        self.db.execute("""SELECT * FROM datasets WHERE dsid = %s""", (dataset,))
-#        description = dict(
-#            [(d[0], i) for i, d in enumerate(self.db.cursor.description)])
-#        row = self.db.cursor.fetchone()
-#        dataset = dict([(key, row[column]) for key, column in
-#                        description.iteritems()])
-#        dataset['id'] = dataset['dsid']
-#
-#        self.db.execute("""SELECT * FROM images WHERE ds_id = %s""", (dataset['id'],))
-#        description = dict(
-#            [(d[0], i) for i, d in enumerate(self.db.cursor.description)])
-#        row = self.db.cursor.fetchone()
-#        image = dict([(key, row[column]) for key, column in
-#                        description.iteritems()])
-#        image['id'] = image['imageid']
-        extractedsource = dbase.extractedsource(id=id, dataset=dataset, dblogin=request.session.get('dblogin', None))
+    def get_context_data(self, **kwargs):
+        context = super(ExtractedSourceView, self).get_context_data(**kwargs)
+        extractedsource = self.database.extractedsource(id=kwargs['id'], dataset=kwargs['dataset'])
         if not extractedsource:
             raise Http404
         else:
             extractedsource = extractedsource[0]
-        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('dblogin', None))[0]
-        return self.render_to_response(
-            {'extractedsource': extractedsource,
-             'dataset': dataset}
-            )
+        context['extractedsource'] = extractedsource
+        context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
+        return context
 
 
-class MonitoringListView(TemplateResponseMixin, View):
+class MonitoringListView(BaseView, FormMixin):
     template_name = 'dataset/monitoringlist.html'
+    form_class = MonitoringListForm
+    initial = {}
+    
+    def form_valid(self, form):
+        database = self.get_database(self.request.session.get('dblogin', None))
+        database.update_monitoringlist(form.cleaned_data['ra'],
+                                       form.cleaned_data['dec'])
+        return HttpResponseRedirect(self.get_succes_url())
 
-    def get(self, request, dataset, form=None):
-        sources = dbase.monitoringlist(dataset=dataset, dblogin=request.session.get('dblogin', None))
-        dataset = dbase.dataset(id=dataset, dblogin=request.session.get('dblogin', None))[0]
-        if not form:
-            form = MonitoringListForm()
+    def get_succes_url(self):
+        return reverse('dataset:monitoringlist',
+                       kwargs={'dataset': self.dataset_id})
+
+    def get(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
         return self.render_to_response(
-            {'sources': sources,
-             'dataset': dataset,
-             'form': form}
-            )
-
-    def post(self, request, dataset):
-        if not request.user.has_perm('monitoringlist.change_monitoringlist'):
-            raise HttpResponseForbidden
-        form = MonitoringListForm(request.POST)
+            self.get_context_data(*args, form=form, **kwargs))
+    
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.has_perm('monitoringlist.change_monitoringlist'):
+            return HttpResponseForbidden()
+        self.dataset_id = kwargs['dataset']
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
         if form.is_valid():
-            dbase.update_monitoringlist(form.cleaned_data['ra'],
-                                        form.cleaned_data['dec'],
-                                        dblogin=request.session.get('dblogin', None))
-            return HttpResponseRedirect(reverse(
-                'dataset:monitoringlist',
-                kwargs={'dataset': dataset}))
-        self.get(request, dataset, form=form)
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+        
+    def get_context_data(self, **kwargs):
+        context = super(MonitoringListView, self).get_context_data(**kwargs)
+        context['sources'] = self.database.monitoringlist(dataset=kwargs['dataset'])
+        context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
+        context['form'] = kwargs['form']
+        return context
 
 
-class TransientLightcurveView(View):
+class TransientLightcurveView(BaseView):
 
-    def get(self, request, dataset, id):
-        transient = dbase.transient(id=id, dataset=dataset, dblogin=request.session.get('dblogin', None))
+    def get_context_data(self, **kwargs):
+        context = super(TransientLightcurveView, self).get_context_data(**kwargs)
+        transient = self.database.transient(id=kwargs['id'], dataset=kwargs['dataset'])
         if not transient:
             raise Http404
         else:
             transient = transient[0]
-        return self.render_to_response({'id': transient['xtrsrc_id']})
+        context['transient'] = transient
+        context['id'] = transient['xtrsrc_id']
+        return context
     
     def render_to_response(self, context, **kwargs):
         response = HttpResponse(mimetype="image/png")
-        plot.lightcurve(context['id'], response=response, dblogin=self.request.session.get('dblogin', None))
+        plot.lightcurve(self.database.lightcurve(context['id']), response=response)
         return response
 
 
-class SourceLightcurveView(View):
+class SourceLightcurveView(BaseView):
 
-    def get(self, request, dataset, id):
-        return self.render_to_response({'id': id})
+    def get_context_data(self, **kwargs):
+        context = super(SourceLightcurveView, self).get_context_data(**kwargs)
+        context['id'] = kwargs['id']
+        return context
     
     def render_to_response(self, context, **kwargs):
         response = HttpResponse(mimetype="image/png")
-        plot.lightcurve(context['id'], response=response, dblogin=self.request.session.get('dblogin', None))
+        plot.lightcurve(self.database.lightcurve(context['id']), response=response)
         return response
