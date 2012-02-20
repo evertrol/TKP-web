@@ -365,13 +365,12 @@ class DataBase(object):
                         )
         return sources
     
-    
-    def monitoringlist(self, dataset=dataset):
-    
+    def monitoringlist(self, dataset):
         # Get all user defined entries
+        print dataset
         query = """\
-    SELECT * FROM monitoringlist WHERE userentry = TRUE"""
-        self.db.execute(query)
+SELECT * FROM monitoringlist WHERE userentry = true AND ds_id = %s"""
+        self.db.execute(query, dataset)
         description = dict(
             [(d[0], i) for i, d in enumerate(self.db.cursor.description)])
         sources = []
@@ -381,13 +380,13 @@ class DataBase(object):
                       for key, column in description.iteritems()]))
             # Format into somewhat nicer keys;
             for key1, key2 in zip(
-                ['monitorid', 'image_id'],
-                ['id', 'image']):
+                ['monitorid', 'ds_id'],
+                ['id', 'dataset']):
                 sources[-1][key2] = sources[-1][key1]
         # Get all non-user entries belonging to this dataset
         query = """\
-    SELECT * FROM monitoringlist ml, runningcatalog rc
-    WHERE ml.userentry = FALSE AND ml.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s"""
+SELECT * FROM monitoringlist ml, runningcatalog rc
+WHERE ml.userentry = false AND ml.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s"""
         self.db.execute(query, dataset)
         description = dict(
             [(d[0], i) for i, d in enumerate(self.db.cursor.description)])
@@ -398,11 +397,10 @@ class DataBase(object):
             # Format into somewhat nicer keys;
             # replace ra, dec by values from runningcatalog
             for key1, key2 in zip(
-                ['monitorid', 'image_id', 'wm_ra', 'wm_decl'],
-                ['id', 'image', 'ra', 'decl']):
+                ['monitorid', 'ds_id', 'wm_ra', 'wm_decl'],
+                ['id', 'dataset', 'ra', 'decl']):
                 sources[-1][key2] = sources[-1][key1]
         return sources
-    
     
     def update_monitoringlist(self, ra, dec):
         query = """\
@@ -412,7 +410,12 @@ VALUES (-1, %s, %s, TRUE)"""
         self.db.execute(query, ra, dec)
         self.db.commit()
     
-    
+    def delete_monitoringlist(self, sources):
+        for source in sources:
+            self.db.execute(
+                "DELETE FROM monitoringlist WHERE monitorid = %s", source)
+            self.db.commit()
+        
     def lightcurve(self, srcid):
         lc = ExtractedSource(id=srcid, database=self.db).lightcurve()
         return lc

@@ -83,14 +83,15 @@ class ImageView(BaseView):
             image = image[0]
         image['png'] = plot.image(image, database=self.database)
         dataset = self.database.dataset(id=kwargs['dataset'])[0]
-        sources = []
-        if self.request.GET:
-            extra_options = self.request.GET.getlist('extra')
-            if 'plotsources' in extra_options:
-                sources = self.database.extractedsource(image=image['id'])
-                image['sources'] = plot.image(image, plotsources=sources)
-            if 'listsources' in extra_options:
-                sources = self.database.extractedsource(image=image['id'])
+        sources = self.database.extractedsource(image=image['id'])
+        image['sources'] = plot.image(image, plotsources=sources)
+        #if self.request.GET:
+        #    extra_options = self.request.GET.getlist('extra')
+        #    if 'plotsources' in extra_options:
+        #        sources = self.database.extractedsource(image=image['id'])
+        #        image['sources'] = plot.image(image, plotsources=sources)
+        #    if 'listsources' in extra_options:
+        #        sources = self.database.extractedsource(image=image['id'])
         context['image'] = image
         context['sources'] = sources
         context['dataset'] = dataset
@@ -145,6 +146,7 @@ class SourceView(BaseView):
         else:
             source = source[0]
         source['lightcurve'] = plot.lightcurve(self.database.lightcurve(int(source['xtrsrc_id'])))
+        #source['points'] = self.database.
         context['source'] = source
         context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
         return context
@@ -181,25 +183,35 @@ class MonitoringListView(BaseView, FormMixin):
     initial = {}
     
     def form_valid(self, form):
-        database = self.get_database(self.request.session.get('dblogin', None))
-        database.update_monitoringlist(form.cleaned_data['ra'],
+        self.database.update_monitoringlist(form.cleaned_data['ra'],
                                        form.cleaned_data['dec'])
         return HttpResponseRedirect(self.get_succes_url())
 
+    def form_invalid(self, form):
+        return HttpResponseRedirect(self.get_succes_url())
+    
     def get_succes_url(self):
         return reverse('dataset:monitoringlist',
                        kwargs={'dataset': self.dataset_id})
 
     def get(self, request, *args, **kwargs):
+        self.dataset_id = kwargs['dataset']
+        self.database = self.get_database(self.request.session.get('dblogin', None))
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         return self.render_to_response(
-            self.get_context_data(*args, form=form, **kwargs))
+            self.get_context_data(form=form, **kwargs))
     
     def post(self, request, *args, **kwargs):
         if not self.request.user.has_perm('monitoringlist.change_monitoringlist'):
             return HttpResponseForbidden()
         self.dataset_id = kwargs['dataset']
+        self.database = self.get_database(self.request.session.get('dblogin', None))
+        if request.POST['action'] == 'Delete selected':
+            sources = [int(source) for source in
+                       request.POST.getlist('sources', [])]
+            self.database.delete_monitoringlist(sources)
+            return HttpResponseRedirect(self.get_succes_url())            
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
