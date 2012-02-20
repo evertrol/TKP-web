@@ -25,7 +25,7 @@
 <td>{{ transient.siglevel|stringformat:".3f" }}</td>
 <!-- <td>{{ transient.detection_level }}</td> -->
 <!-- <td>{{ transient.status }}</td> -->
-<td>{{ transient.datapoints }}</td>
+<td>{{ transient.npoints }}</td>
 <td><a href="{% url 'dataset:source' dataset=dataset.id id=transient.xtrsrc_id %}">{{ transient.xtrsrc_id }}</a></td>
 </tr>
 {% endfor %}

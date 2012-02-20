@@ -219,6 +219,13 @@ class DataBase(object):
                 ['transientid', 't_start'],
                 ['id', 'startdate']):
                 transients[-1][key2] = transients[-1][key1]
+            # Obtain the actual number of datapoints, including those from
+            # sub-detection level monitoring observations
+            transients[-1]['npoints'] = self.db.getone(
+                "SELECT COUNT(*) FROM assocxtrsources WHERE xtrsrc_id = %s",
+                transients[-1]['xtrsrc_id'])[0]
+            # Calculate the significance level (note: here we do need rc.datapoints,
+            # instead of the above npoints)
             n = transients[-1]['datapoints']
             transients[-1]['siglevel'] = chisqprob(
                 transients[-1]['siglevel'] * n, n)
