@@ -3,6 +3,7 @@ import base64
 import datetime
 import time
 import numpy
+import aplpy
 from scipy.stats import scoreatpercentile
 import matplotlib
 from matplotlib.figure import Figure
@@ -13,25 +14,15 @@ import dbase
 
 
 def image(dbimage, scale=0.9, plotsources=None, database=None):
-    image = open_image(dbimage['url'], database=database)
-    source_coords = []
-    if plotsources:
-        #sources = dbase.extractedsource(image=dbimage['id'], dblogin=dblogin)
-        for source in plotsources:
-            source_coords.append(
-                image.wcs.s2p((source['ra'], source['decl'])))
-    flat_data = image.data.flatten()
-    low = scoreatpercentile(flat_data, per=50-scale*50)
-    high = scoreatpercentile(flat_data, per=50+scale*50)
     figure = Figure(figsize=(5, 5))
-    axes = figure.add_subplot(1, 1, 1)
-    axes.imshow(numpy.transpose(image.data),
-                cmap=matplotlib.cm.get_cmap('gray'),
-                norm=matplotlib.colors.Normalize(low, high, clip=True),
-                origin='lower')
-    for coord in source_coords:
-        axes.add_patch(Circle(coord, radius=20, color='g', fill=False))
     canvas = FigureCanvasAgg(figure)
+    image = aplpy.FITSFigure(dbimage['url'], figure=figure, auto_refresh=False)
+    image.show_grayscale()
+    image.tick_labels.set_font(size=5)
+    if plotsources:
+        ra = [source['ra'] for source in plotsources]
+        dec = [source['decl'] for source in plotsources]
+        image.show_markers(ra, dec, s=40, facecolor='none', edgecolor='green')
     memfig = StringIO.StringIO()
     canvas.print_figure(memfig, format='png', transparent=True)
     encoded_png = StringIO.StringIO()
