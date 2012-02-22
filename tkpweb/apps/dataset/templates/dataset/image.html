@@ -43,26 +43,10 @@
 <th>Error (RA)</th>
 <th>Error (dec.)</th>
 <th>S/N</th>
-<th>I peak flux</th>
-<th>I peak flux error</th>
-<!--
-<th>Q peak flux</th>
-<th>Q peak flux error</th>
-<th>U peak flux</th>
-<th>U peak flux error</th>
-<th>V peak flux</th>
-<th>V peak flux error</th>
--->
-<th>I integrated flux</th>
-<th>I integrated flux error</th>
-<!--
-<th>Q integrated flux</th>
-<th>Q integrated flux error</th>
-<th>U integrated flux</th>
-<th>U integrated flux error</th>
-<th>V integrated flux</th>
-<th>V integrated flux error</th>
--->
+<th>Peak flux (Jy)</th>
+<th>Peak flux error (Jy)</th>
+<th>Integrated flux (Jy)</th>
+<th>Integrated flux error (Jy)</th>
 </tr>
 </thead>
 <tbody>
@@ -74,18 +58,10 @@
 <td>{{ source.ra_err|stringformat:".3f" }}</td>
 <td> {{ source.decl_err|stringformat:".3f" }}</td>
 <td>{{ source.det_sigma|stringformat:".3f" }}</td>
-{% for flux in source.flux.peak %}
-{% if forloop.counter == 1 %}
-<td>{% if flux.value %}{{ flux.value|stringformat:".3g" }}{% else %}-{% endif %}</td>
-<td>{% if flux.error %}{{ flux.error|stringformat:".3g" }}{% else %}-{% endif %}</td>
-{% endif %}
-{% endfor %}
-{% for flux in source.flux.int %}
-{% if forloop.counter == 1 %}
-<td>{% if flux.value %}{{ flux.value|stringformat:".3g" }}{% else %}-{% endif %}</td>
-<td>{% if flux.error %}{{ flux.error|stringformat:".3g" }}{% else %}-{% endif %}</td>
-{% endif %}
-{% endfor %}
+<td>{{ source.i_peak|prefixformat:"m"|stringformat:".3g" }}</td>
+<td>{{ source.i_peak_err|prefixformat:"m"|stringformat:".3g" }}</td>
+<td>{{ source.i_int|prefixformat:"m"|stringformat:".3g" }}</td>
+<td>{{ source.i_int_err|prefixformat:"m"|stringformat:".3g" }}</td>
 </tr>
 {% endfor %}
 </tbody>

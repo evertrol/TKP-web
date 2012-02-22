@@ -1,5 +1,5 @@
 {% extends "dataset/base.html" %}
-{% load url from future %}
+{% load url from future %}{% load formatting %}
 {% block main %}
 <h1>Source #{{ source.id }}</h1>
 
@@ -15,10 +15,33 @@
   <dd><a href="{% url 'dataset:dataset' id=source.dataset %}">{{ source.dataset }}</a></dd>
 </dl>
 
-{% if source.lightcurve %}
+
+
+{% if lightcurve %}
 <h2>Lightcurve</h2>
 
-<img src="{{ source.lightcurve }}" />
+{% if lightcurve.plot %}<figure><figcaption>Light curve for this transient; horizontal error bars indicate the integration time. Red bars indicate the timestamps of all available images; their width again indicates the image integration time for the image.</figcaption><img src="{{ lightcurve.plot }}" /></figure>{% endif %}
+{% if lightcurve.data %}
+<table>
+<thead>
+<th>ID</th>
+<th>Date (UTC)</ht>
+<th>Integration time (s)</ht>
+<th>Flux (mJy)</ht>
+<th>Flux error (mJy)</ht>
+</thead>
+<tbody>
+{% for point in lightcurve.data %}
+<tr class="{% cycle 'odd' 'even' %}">
+<td><a href="{% url 'dataset:extractedsource' dataset=dataset.id id=point.4 %}">{{ point.4 }}</a></td>
+<td>{{ point.0|date:"c" }}</td>
+<td>{{ point.1 }}</td>
+<td>{{ point.2|prefixformat:"m"|stringformat:".3f" }}</td>
+<td>{{ point.3|prefixformat:"m"|stringformat:".3f" }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
 {% endif %}
-
+{% endif %}
 {% endblock main %}

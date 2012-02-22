@@ -119,7 +119,12 @@ class TransientView(BaseView):
             raise Http404
         else:
             transient = transient[0]
-        transient['lightcurve'] = plot.lightcurve(self.database.lightcurve(int(transient['xtrsrc_id'])))
+        images = self.database.image_times(dataset=kwargs['dataset'])
+        lightcurve = self.database.lightcurve(int(transient['xtrsrc_id']))
+        context['lightcurve'] = {
+            'plot': plot.lightcurve(lightcurve, images=images),
+            'data': lightcurve
+            }
         context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
         context['transient'] = transient
         return context
@@ -145,8 +150,12 @@ class SourceView(BaseView):
             raise Http404
         else:
             source = source[0]
-        source['lightcurve'] = plot.lightcurve(self.database.lightcurve(int(source['xtrsrc_id'])))
-        #source['points'] = self.database.
+        images = self.database.image_times(dataset=kwargs['dataset'])
+        lightcurve = self.database.lightcurve(int(source['xtrsrc_id']))
+        context['lightcurve'] = {
+            'plot': plot.lightcurve(lightcurve, images=images),
+            'data': lightcurve
+            }
         context['source'] = source
         context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
         return context
@@ -242,6 +251,7 @@ class TransientLightcurveView(BaseView):
     
     def render_to_response(self, context, **kwargs):
         response = HttpResponse(mimetype="image/png")
+        print 'kwargs =', kwargs
         plot.lightcurve(self.database.lightcurve(context['id']), response=response)
         return response
 

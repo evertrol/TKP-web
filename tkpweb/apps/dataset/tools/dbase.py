@@ -6,6 +6,7 @@ from tkp.utility.accessors import CASAImage
 from scipy.stats import chisqprob
 from .image import open_image
 from tkpweb import settings
+import datetime
 
 
 class DataBase(object):
@@ -362,19 +363,17 @@ class DataBase(object):
                 ['xtrsrcid', 'image_id'],
                 ['id', 'image']):
                 sources[-1][key2] = sources[-1][key1]
-            sources[-1]['flux'] = {'peak': [], 'int': []}
-            for stokes in "iquv":
-                for fluxtype in ('peak', 'int'):
-                    sources[-1]['flux'][fluxtype].append(
-                        {'stokes': stokes, 
-                         'value': sources[-1][stokes+"_"+fluxtype],
-                         'error': sources[-1][stokes+"_"+fluxtype+"_err"]}
-                        )
+            #sources[-1]['flux'] = {'peak': {}, 'int': {}}
+            #    for fluxtype in ('peak', 'int'):
+            #        sources[-1]['flux'][fluxtype].append(
+            #            {'stokes': stokes, 
+            #             'value': sources[-1][stokes+"_"+fluxtype],
+            #             'error': sources[-1][stokes+"_"+fluxtype+"_err"]}
+            #            )
         return sources
     
     def monitoringlist(self, dataset):
         # Get all user defined entries
-        print dataset
         query = """\
 SELECT * FROM monitoringlist WHERE userentry = true AND ds_id = %s"""
         self.db.execute(query, dataset)
@@ -426,3 +425,14 @@ VALUES (-1, %s, %s, TRUE)"""
     def lightcurve(self, srcid):
         lc = ExtractedSource(id=srcid, database=self.db).lightcurve()
         return lc
+
+
+    def image_times(self, dataset):
+        image_times = self.db.get(
+            "SELECT taustart_ts, tau_time FROM images WHERE ds_id = %s",
+            dataset)
+        # Make the dates mid-point
+        image_times = [(taustart_ts + datetime.timedelta(seconds=tau_time/2),
+                        tau_time) for taustart_ts, tau_time in image_times]
+        return image_times
+
