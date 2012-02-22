@@ -8,7 +8,8 @@ from scipy.stats import scoreatpercentile
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-from matplotlib.patches import Circle
+from matplotlib.patches import Rectangle
+from matplotlib.collections import PatchCollection
 from .image import open_image
 import dbase
 
@@ -31,18 +32,36 @@ def image(dbimage, scale=0.9, plotsources=None, database=None):
     return encoded_png.getvalue()
 
 
-def lightcurve(lc, T0=datetime.datetime(2010, 1, 1), response=None):
-    T0 -= datetime.datetime(1970, 1, 1)
-    T0 = (T0.microseconds + (T0.seconds + T0.days * 86400) * 1e6) / 1e6
-    dates = matplotlib.dates.date2num([point[0] for point in lc])
-    times = numpy.array([time.mktime(point[0].timetuple()) for point in lc]) - T0
+def lightcurve(lc, T0=None, response=None, images=None):
+    #dates = matplotlib.dates.date2num([point[0] for point in lc])
+    times = numpy.array([time.mktime(point[0].timetuple()) for point in lc])
     inttimes = [point[1]/2. for point in lc]
     fluxes = [point[2] for point in lc]
     errors = [point[3] for point in lc]
+    if T0 is None:
+        tmin = sorted(times)[0]
+        if images:
+            tmin2 = time.mktime(sorted(zip(*images)[0])[0].timetuple())
+            if tmin2  < tmin:
+                tmin = tmin2
+        tmin = datetime.datetime.fromtimestamp(tmin)
+        T0 = datetime.datetime(tmin.year, tmin.month, tmin.day, 0, 0, 0)
+    tdiff = T0 - datetime.datetime(1970, 1, 1)
+    tdiff = (tdiff.microseconds + (tdiff.seconds + tdiff.days * 86400) * 1e6) / 1e6
+    times -= tdiff
     figure = Figure()
     axes = figure.add_subplot(1, 1, 1)
-    axes.errorbar(x=times, y=fluxes, yerr=errors, xerr=inttimes, fmt='bo')
-    axes.set_xlabel('Seconds since 2010-1-1T00:00:00')
+    axes.errorbar(x=times, y=fluxes, yerr=errors, xerr=numpy.array(inttimes)/2., fmt='bo')
+    ylimits = axes.get_ylim()
+    if images:
+        images = zip(*images)
+        x = numpy.array([time.mktime(x.timetuple()) for x in images[0]]) - tdiff
+        xerr = numpy.array(images[1])/2.
+        patches = [Rectangle((x - xerr, ylimits[0]), xerr, ylimits[1]-ylimits[0])
+                for x, xerr in zip(x, xerr)]
+        patches = PatchCollection(patches, alpha=0.3, linewidth=0, visible=True, color='r')
+        axes.add_collection(patches)
+    axes.set_xlabel('Seconds since %s' % T0.strftime('%Y-%m-%dT%H:%M:%S'))
     axes.set_ylabel('Flux (Jy)')
     canvas = FigureCanvasAgg(figure)
     if response:
