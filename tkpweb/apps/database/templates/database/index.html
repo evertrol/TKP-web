@@ -3,8 +3,12 @@
 <h1>Available databases</h1>
 
 <ul>
-{% for database in databases %}
-<li>{% if database == selected %}{{ database }} (current){% else %}<a href="{% url database:database database %}">{{ database }}</a>{% endif %}</li>
+{% for host, settings in databases.items %}
+<li>{{ host }}<ul>
+{% for database in settings.names %}
+<li>{% if host == selected.0 and database == selected.2 %}{{ database }} (current){% else %}<a href="{% url database:database-port host settings.port database %}">{{ database }}</a>{% endif %}</li>
+{% endfor %}
+</ul></li>
 {% endfor %}
 </ul>
 {% endblock main %}
