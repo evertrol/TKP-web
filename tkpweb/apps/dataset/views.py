@@ -192,8 +192,8 @@ class MonitoringListView(BaseView, FormMixin):
     initial = {}
     
     def form_valid(self, form):
-        self.database.update_monitoringlist(form.cleaned_data['ra'],
-                                       form.cleaned_data['dec'])
+        self.database.update_monitoringlist(
+            form.cleaned_data['ra'], form.cleaned_data['dec'], self.dataset_id)
         return HttpResponseRedirect(self.get_succes_url())
 
     def form_invalid(self, form):

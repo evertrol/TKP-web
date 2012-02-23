@@ -408,12 +408,12 @@ WHERE ml.userentry = false AND ml.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s"""
                 sources[-1][key2] = sources[-1][key1]
         return sources
     
-    def update_monitoringlist(self, ra, dec):
+    def update_monitoringlist(self, ra, dec, ds_id):
         query = """\
 INSERT INTO monitoringlist
-(xtrsrc_id, ra, decl, userentry)
-VALUES (-1, %s, %s, TRUE)"""
-        self.db.execute(query, ra, dec)
+(xtrsrc_id, ra, decl, ds_id, userentry)
+VALUES (-1, %s, %s, %s, TRUE)"""
+        self.db.execute(query, ra, dec, ds_id)
         self.db.commit()
     
     def delete_monitoringlist(self, sources):
