@@ -3,7 +3,9 @@
 {% block main %}
 <h1>Monitoring list for Dataset # {{ dataset.id }}</h1>
 
+{% if request.user.is_authenticated and perms.monitoringlist.change_monitoringlist %}
 <form action="{% url 'dataset:monitoringlist' dataset=dataset.id %}" method="post">{% csrf_token %}
+{% endif %}
 <table>
 <thead>
 <tr>
@@ -11,7 +13,7 @@
 <th>Right Ascension</th>
 <th>Declination</th>
 <th>User entry</th>
-<th>Select</th>
+{% if request.user.is_authenticated and perms.monitoringlist.change_monitoringlist %}<th>Select</th>{% endif %}
 </tr>
 </thead>
 <tbody>
@@ -21,15 +23,15 @@
 <td>{{ source.ra|stringformat:".3f" }}</td>
 <td> {{ source.decl|stringformat:".3f" }}</td>
 <td>{% if source.userentry %}&#x2713;{% else %}-{% endif %}</td>
-<td><input type="checkbox" value="{{ source.monitorid }}" name="sources" /></td>
+{% if request.user.is_authenticated and perms.monitoringlist.change_monitoringlist %}<td><input type="checkbox" value="{{ source.monitorid }}" name="sources" /></td>{% endif %}
 </tr>
 {% endfor %}
 </tbody>
 </table>
+{% if request.user.is_authenticated and perms.monitoringlist.change_monitoringlist %}
 <input type="submit" value="Delete selected" name="action" />
 </form>
 
-{% if request.user.is_authenticated %}{% if perms.monitoringlist.change_monitoringlist %}
 <hr />
 <h2>Add a new source</h2>
 <form action="{% url 'dataset:monitoringlist' dataset=dataset.id %}" method="post">{% csrf_token %}
@@ -38,5 +40,5 @@
 </table>
 <input type="submit" value="Submit" name="action" />
 </form>
-{% endif %}{% endif %}
+{% endif %}
 {% endblock main %}
