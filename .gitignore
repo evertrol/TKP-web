@@ -2,3 +2,4 @@ manage.py
 settings.py
 runserver.bash
 tkpweb.db
+tkp.cfg
