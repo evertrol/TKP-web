@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from .tools import dbase
 from .tools import plot
+from .tools import quality
 from .forms import MonitoringListForm
 from tkp.database.database import DataBase
 import tkp.database.dataset as dbset
@@ -52,13 +53,21 @@ class DatasetView(BaseView):
         """List details for single dataset"""
 
         context = super(DatasetView, self).get_context_data(**kwargs)
-        dataset = self.database.dataset(id=int(kwargs['id']), extra_info=[
+        dsid = int(kwargs['id'])
+        dataset = self.database.dataset(id=dsid, extra_info=[
             "ntransients", "nimages", "nsources", "ntotalsources"])
         if not dataset:
             raise Http404
         else:
-            dataset = dataset[0]
+            dataset = dataset[0]            
         context['dataset'] = dataset
+        context['rmsplot'] = quality.plot_rms_distance_from_fieldcentre(
+            self.database, dsid)
+        context['histimageplot'] = quality.PlotHistSourcesPerImage().render(
+            self.database, dsid)
+        context['scattallplot'] = quality.PlotScatPosAllCounterparts().render(
+            self.database, dsid)
+
         return context
     
     

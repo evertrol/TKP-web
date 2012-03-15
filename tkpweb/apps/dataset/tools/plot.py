@@ -14,6 +14,50 @@ from .image import open_image
 import dbase
 
 
+class Plot(object):
+
+    def __init__(self, response=None, size=(5, 5)):
+        self.size = size
+        self.response = response
+        self.image = None
+        
+    def pre(self):
+        """Hook for any preprocessing"""
+        pass
+
+    def post(self):
+        """Hook for any postprocessing"""
+        pass
+    
+    def setup(self):
+        self.figure = Figure(figsize=self.size)
+        self.canvas = FigureCanvasAgg(self.figure)
+
+    def output(self, format='png'):
+        if self.response:
+             self.canvas.print_figure(self.response, format=format)
+             self.image = self.response
+        memfig = StringIO.StringIO()
+        self.canvas.print_figure(memfig, format=format, transparent=True)
+        encoded_png = StringIO.StringIO()
+        encoded_png.write('data:image/%s;base64,\n' % format)
+        encoded_png.write(base64.b64encode(memfig.getvalue()))
+        self.image = encoded_png.getvalue()
+    
+    def render(self, *args, **kwargs):
+        format = kwargs.pop('format', 'png')
+        self.pre()
+        self.setup()
+        self.plot(*args, **kwargs)
+        self.output(format=format)
+        self.post()
+        return self.image
+
+    def plot(self, *args, **kwargs):
+        """Do the actual plotting work"""
+        raise NotImplementedError
+
+ 
 def image(dbimage, scale=0.9, plotsources=None, database=None, response=None, size=(5, 5)):
     figure = Figure(figsize=size)
     canvas = FigureCanvasAgg(figure)

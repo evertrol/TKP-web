@@ -17,10 +17,6 @@ from .views import MonitoringListView
 
 urlpatterns = patterns(
    'tkpweb.apps.dataset.views',
-
-#   url(r'^(?P<dataset>\d+)/(?P<table>image|source|transient|extractedsource)/(?P<row>\d+)/$', view=AllView.as_view(), name='table-row'),
-#   (?P<table>image|source|transient|extractedsource)/$', view=AllView.as_view(), name='table'),
-
    url(r'^(?P<dataset>\d+)/monitoringlist/$', view=MonitoringListView.as_view(), name='monitoringlist'),
    url(r'^(?P<dataset>\d+)/image/(?P<id>\d+)/image$', view=ImagePlotView.as_view(), name='image-single'),
    url(r'^(?P<dataset>\d+)/image/(?P<id>\d+)/$', view=ImageView.as_view(), name='image'),
