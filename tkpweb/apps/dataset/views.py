@@ -104,8 +104,11 @@ class TransientsView(BaseView):
 
     def get_context_data(self, **kwargs):
         context = super(TransientsView, self).get_context_data(**kwargs)
+        try:
+            context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
+        except IndexError:
+            raise Http404
         context['transients'] = self.database.transient(dataset=kwargs['dataset'])
-        context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
         return context
 
 
@@ -251,7 +254,6 @@ class TransientLightcurveView(BaseView):
     
     def render_to_response(self, context, **kwargs):
         response = HttpResponse(mimetype="image/png")
-        print 'kwargs =', kwargs
         plot.lightcurve(self.database.lightcurve(context['id']), response=response)
         return response
 
