@@ -67,3 +67,8 @@ Dependencies
   - pywcs: https://trac.assembla.com/astrolib
 
 
+License
+=======
+
+TKP-web is licensed under the very liberal ISC license
+(http://www.isc.org/software/license).
