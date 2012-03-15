@@ -272,3 +272,23 @@ class SourceLightcurveView(BaseView):
         response = HttpResponse(mimetype="image/png")
         plot.lightcurve(self.database.lightcurve(context['id']), response=response)
         return response
+
+
+class ImagePlotView(BaseView):
+
+    def get_context_data(self, **kwargs):
+        context = super(ImagePlotView, self).get_context_data(**kwargs)
+        context['id'] = kwargs['id']
+
+    def render_to_response(self, context, **kwargs):
+        response = HttpResponse(mimetype="image/png")
+        image = self.database.image(
+            id=self.kwargs['id'], dataset=self.kwargs['dataset'],
+            extra_info=['ntotalsources'])
+        if not image:
+            raise Http404
+        else:
+            image = image[0]
+        sources = self.database.extractedsource(image=image['id'])
+        plot.image(image, plotsources=sources, response=response, size=(12, 12))
+        return response

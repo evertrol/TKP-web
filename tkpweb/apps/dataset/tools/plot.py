@@ -14,8 +14,8 @@ from .image import open_image
 import dbase
 
 
-def image(dbimage, scale=0.9, plotsources=None, database=None):
-    figure = Figure(figsize=(5, 5))
+def image(dbimage, scale=0.9, plotsources=None, database=None, response=None, size=(5, 5)):
+    figure = Figure(figsize=size)
     canvas = FigureCanvasAgg(figure)
     image = aplpy.FITSFigure(dbimage['url'], figure=figure, auto_refresh=False)
     image.show_grayscale()
@@ -29,6 +29,9 @@ def image(dbimage, scale=0.9, plotsources=None, database=None):
         image.show_ellipses(ra, dec, major, minor, angle, facecolor='none', edgecolor='green')
         #show_ellipses(self, xw, yw, width, height, angle=0, layer=False, zorder=None, **kwargs):
         #image.show_markers(ra, dec, s=40, facecolor='none', edgecolor='green')
+    if response:
+         canvas.print_figure(response, format='png')
+         return response
     memfig = StringIO.StringIO()
     canvas.print_figure(memfig, format='png', transparent=True)
     encoded_png = StringIO.StringIO()

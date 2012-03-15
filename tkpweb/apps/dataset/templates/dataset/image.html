@@ -28,7 +28,7 @@
 {% if image.sources %}
 <h2>Image with detected sources</h2>
 
-<img src="{{ image.sources }}" />
+<a href="{% url 'dataset:image-single' dataset=dataset.id id=image.id %}"><img src="{{ image.sources }}" /></a>
 {% endif %}
 
 {% if sources %}

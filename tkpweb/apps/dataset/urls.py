@@ -3,6 +3,7 @@ from .views import DatasetsView
 from .views import DatasetView
 from .views import ImagesView
 from .views import ImageView
+from .views import ImagePlotView
 from .views import ExtractedSourcesView
 from .views import ExtractedSourceView
 from .views import SourceLightcurveView
@@ -21,6 +22,7 @@ urlpatterns = patterns(
 #   (?P<table>image|source|transient|extractedsource)/$', view=AllView.as_view(), name='table'),
 
    url(r'^(?P<dataset>\d+)/monitoringlist/$', view=MonitoringListView.as_view(), name='monitoringlist'),
+   url(r'^(?P<dataset>\d+)/image/(?P<id>\d+)/image$', view=ImagePlotView.as_view(), name='image-single'),
    url(r'^(?P<dataset>\d+)/image/(?P<id>\d+)/$', view=ImageView.as_view(), name='image'),
    url(r'^(?P<dataset>\d+)/image/$', view=ImagesView.as_view(), name='images'),
    url(r'^(?P<dataset>\d+)/transient/(?P<id>\d+)/lightcurve/$', view=TransientLightcurveView.as_view(), name='transient-lightcurve'),
