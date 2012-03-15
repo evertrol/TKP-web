@@ -23,7 +23,12 @@ def image(dbimage, scale=0.9, plotsources=None, database=None):
     if plotsources:
         ra = [source['ra'] for source in plotsources]
         dec = [source['decl'] for source in plotsources]
-        image.show_markers(ra, dec, s=40, facecolor='none', edgecolor='green')
+        major = [source['major']/900 for source in plotsources]
+        minor = [source['minor']/900 for source in plotsources]
+        angle = [source['theta']+90 for source in plotsources]
+        image.show_ellipses(ra, dec, major, minor, angle, facecolor='none', edgecolor='green')
+        #show_ellipses(self, xw, yw, width, height, angle=0, layer=False, zorder=None, **kwargs):
+        #image.show_markers(ra, dec, s=40, facecolor='none', edgecolor='green')
     memfig = StringIO.StringIO()
     canvas.print_figure(memfig, format='png', transparent=True)
     encoded_png = StringIO.StringIO()
