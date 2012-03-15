@@ -1,0 +1,8 @@
+[database]
+enabled = True
+host = 
+name = 
+user = 
+password = 
+port = 
+autocommit = False
