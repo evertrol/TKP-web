@@ -32,7 +32,7 @@ def image(dbimage, scale=0.9, plotsources=None, database=None):
     return encoded_png.getvalue()
 
 
-def lightcurve(lc, T0=None, response=None, images=None):
+def lightcurve(lc, T0=None, response=None, images=None, trigger_index=None, size=(8, 8)):
     #dates = matplotlib.dates.date2num([point[0] for point in lc])
     times = numpy.array([time.mktime(point[0].timetuple()) for point in lc])
     inttimes = [point[1]/2. for point in lc]
@@ -49,16 +49,18 @@ def lightcurve(lc, T0=None, response=None, images=None):
     tdiff = T0 - datetime.datetime(1970, 1, 1)
     tdiff = (tdiff.microseconds + (tdiff.seconds + tdiff.days * 86400) * 1e6) / 1e6
     times -= tdiff
-    figure = Figure()
+    figure = Figure(figsize=size)
     axes = figure.add_subplot(1, 1, 1)
     axes.errorbar(x=times, y=fluxes, yerr=errors, xerr=numpy.array(inttimes)/2., fmt='bo')
+    if trigger_index is not None:
+        axes.errorbar(x=times[trigger_index], y=fluxes[trigger_index], fmt='o', mec='r', ms=15., mfc='None')
     ylimits = axes.get_ylim()
     if images:
         images = zip(*images)
         x = numpy.array([time.mktime(x.timetuple()) for x in images[0]]) - tdiff
         xerr = numpy.array(images[1])/2.
-        patches = [Rectangle((x - xerr, ylimits[0]), xerr, ylimits[1]-ylimits[0])
-                for x, xerr in zip(x, xerr)]
+        patches = [Rectangle((xx - xxerr, ylimits[0]), xxerr, ylimits[1]-ylimits[0])
+                for xx, xxerr in zip(x, xerr)]
         patches = PatchCollection(patches, alpha=0.3, linewidth=0, visible=True, color='r')
         axes.add_collection(patches)
     axes.set_xlabel('Seconds since %s' % T0.strftime('%Y-%m-%dT%H:%M:%S'))
