@@ -70,24 +70,24 @@ class DataBase(object):
                 datasets[-1][key2] = datasets[-1][key1]
             if 'ntransients' in extra_info:
                 query = """\
-    SELECT COUNT(*) FROM transients tr, runningcatalog rc
-    WHERE tr.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s"""
+SELECT COUNT(*) FROM transients tr, runningcatalog rc
+WHERE tr.xtrsrc_id = rc.xtrsrc_id AND rc.ds_id = %s"""
                 datasets[-1]['ntransients'] = self.db.getone(
                     query, datasets[-1]['id'])[0]
             if 'nimages' in extra_info:
                 query = """\
-    SELECT COUNT(*) FROM images WHERE ds_id = %s"""
+SELECT COUNT(*) FROM images WHERE ds_id = %s"""
                 datasets[-1]['nimages'] = self.db.getone(
                     query, datasets[-1]['id'])[0]
             if 'nsources' in extra_info:
                 query = """\
-    SELECT COUNT(*) FROM runningcatalog WHERE ds_id = %s"""
+SELECT COUNT(*) FROM runningcatalog WHERE ds_id = %s"""
                 datasets[-1]['nsources'] = self.db.getone(
                     query, datasets[-1]['id'])[0]
             if 'ntotalsources' in extra_info:
                 query = """\
-    SELECT COUNT(*) FROM extractedsources ex, images im
-    WHERE ex.image_id = im.imageid and im.ds_id = %s"""
+SELECT COUNT(*) FROM extractedsources ex, images im
+WHERE ex.image_id = im.imageid and im.ds_id = %s"""
                 datasets[-1]['ntotalsources'] = self.db.getone(
                     query, datasets[-1]['id'])[0]
         return datasets
@@ -129,11 +129,11 @@ class DataBase(object):
         extra_info = set(extra_info)
         if id is not None:  # id = 0 could be valid for some databases
             if dataset is not None:
-                self.db.execute(
-    """SELECT * FROM images WHERE imageid = %s AND ds_id = %s""", id, dataset)
+                self.db.execute("""\
+SELECT * FROM images WHERE imageid = %s AND ds_id = %s""", id, dataset)
             else:
-                self.db.execute(
-    """SELECT * FROM images WHERE dsid = %s""", id)
+                self.db.execute("""\
+SELECT * FROM images WHERE dsid = %s""", id)
         else:
             if dataset is not None:
                 self.db.execute("""SELECT * FROM images WHERE ds_id = %s""", dataset)
@@ -164,7 +164,7 @@ class DataBase(object):
                 images[-1]['Dec'] = None
             if 'ntotalsources' in extra_info:
                 query = """\
-    SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
+SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
                 images[-1]['ntotalsources'] = self.db.getone(
                     query, images[-1]['id'])[0]
         return images

@@ -23,12 +23,10 @@ def image(dbimage, scale=0.9, plotsources=None, database=None, response=None, si
     if plotsources:
         ra = [source['ra'] for source in plotsources]
         dec = [source['decl'] for source in plotsources]
-        major = [source['major']/900 for source in plotsources]
-        minor = [source['minor']/900 for source in plotsources]
-        angle = [source['theta']+90 for source in plotsources]
-        image.show_ellipses(ra, dec, major, minor, angle, facecolor='none', edgecolor='green')
-        #show_ellipses(self, xw, yw, width, height, angle=0, layer=False, zorder=None, **kwargs):
-        #image.show_markers(ra, dec, s=40, facecolor='none', edgecolor='green')
+        semimajor = [source['semimajor']/900 for source in plotsources]
+        semiminor = [source['semiminor']/900 for source in plotsources]
+        pa = [source['pa']+90 for source in plotsources]
+        image.show_ellipses(ra, dec, semimajor, semiminor, pa, facecolor='none', edgecolor='green')
     if response:
          canvas.print_figure(response, format='png')
          return response
@@ -41,7 +39,6 @@ def image(dbimage, scale=0.9, plotsources=None, database=None, response=None, si
 
 
 def lightcurve(lc, T0=None, response=None, images=None, trigger_index=None, size=(8, 8)):
-    #dates = matplotlib.dates.date2num([point[0] for point in lc])
     times = numpy.array([time.mktime(point[0].timetuple()) for point in lc])
     inttimes = [point[1]/2. for point in lc]
     fluxes = [point[2] for point in lc]
