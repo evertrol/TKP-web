@@ -11,6 +11,10 @@
   <dd>({{ transient.wm_ra|stringformat:".3f" }}&deg;, {{ transient.wm_decl|stringformat:".3f" }}&deg;) &pm; ({{ transient.wm_ra_err|stringformat:".3f" }}&Prime;, {{ transient.wm_decl_err|stringformat:".3f" }}&Prime;)</dd>
   <dt>Significance level</dt>
   <dd>{{ transient.siglevel }}</dd>
+  <dt>&eta;<sub>&nu;</sub></dt>
+  <dd>{{ transient.eta }}</dd>
+  <dt>V<sub>&nu;</sub></dt>
+  <dd>{{ transient.v }}</dd>
   <dt>Start date</dt>
   <dd>{% if transient.startdate %}{{ transient.startdate|date:"c" }}{% else %}-{% endif %}</dd>
   <dt># of datapoints</dt>
