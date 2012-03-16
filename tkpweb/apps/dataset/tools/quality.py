@@ -41,7 +41,7 @@ ORDER BY centr_img_dist_deg
     results = zip(*database.db.get(query, dsid, dist_arcsec_cutoff))
     
     if not results:
-        raise Httpt404
+        raise Http404
     dist_deg, rms = results[2], results[3]
     
     figure = Figure(figsize=size)
@@ -65,7 +65,7 @@ ORDER BY centr_img_dist_deg
     return encoded_png.getvalue()
 
 
-class PlotHistSourcesPerImage(Plot):
+class HistSourcesPerImagePlot(Plot):
 
     def plot(self, database, dsid):
         def autolabel(axes, rects, taustart):
@@ -113,7 +113,7 @@ WHERE t1.image_id = imageid
         axes.grid(True)
     
 
-class PlotScatPosAllCounterparts(Plot):
+class ScatterPosAllCounterpartsPlot(Plot):
 
     def plot(self, database, dsid):
         """Plot positions of all counterparts for all (unique) sources for

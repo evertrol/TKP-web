@@ -1,8 +1,5 @@
 from tkp.database import database
 from tkp.database.dataset import ExtractedSource
-from tkp.utility.accessors import DataAccessor
-from tkp.utility.accessors import FITSImage
-from tkp.utility.accessors import CASAImage
 from scipy.stats import chisqprob
 from .image import open_image
 from tkpweb import settings
@@ -436,3 +433,16 @@ VALUES (-1, %s, %s, %s, TRUE)"""
                         tau_time) for taustart_ts, tau_time in image_times]
         return image_times
 
+    def thumbnail(self, srcid):
+        """Get thumbnail information for a source.
+
+        Returns ra, dec and image filename
+        """
+        
+        ra, dec, filename = self.db.getone("""\
+SELECT ex.ra, ex.decl, im.url
+FROM extractedsources ex, images im
+WHERE ex.xtrsrcid = %s
+  AND ex.image_id = im.imageid
+""", srcid)
+        return ra, dec, filename

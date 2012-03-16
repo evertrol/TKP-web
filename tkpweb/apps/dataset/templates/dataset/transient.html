@@ -1,5 +1,7 @@
 {% extends "dataset/base.html" %}
-{% load url from future %}{% load formatting %}
+{% load url from future %}{% load formatting %}{% load indexing %}
+{% block scripts %}{{ block.super }}<script type="text/javascript" src="{{ STATIC_URL }}dataset/javascript/main.js"></script>
+{% endblock scripts %}
 {% block main %}
 <h1>Transient #{{ transient.id }}</h1>
 
@@ -29,14 +31,16 @@
 <h2>Lightcurve</h2>
 
 {% if lightcurve.plot %}<figure><figcaption>Light curve for this transient; horizontal error bars indicate the integration time. Red bars indicate the timestamps of all available images; their width again indicates the image integration time for the image.</figcaption><img src="{{ lightcurve.plot }}" /></figure>{% endif %}
+<div id="lightcurve">
 {% if lightcurve.data %}
-<table>
+<table style="float: left;">
 <thead>
 <th>ID</th>
-<th>Date (UTC)</ht>
-<th>Integration time (s)</ht>
-<th>Flux (mJy)</ht>
-<th>Flux error (mJy)</ht>
+<th>Date (UTC)</th>
+<th>Integration time (s)</th>
+<th>Flux (mJy)</th>
+<th>Flux error (mJy)</th>
+<th>Thumbnail</th>
 </thead>
 <tbody>
 {% for point in lightcurve.data %}
@@ -46,10 +50,17 @@
 <td>{{ point.1 }}</td>
 <td>{{ point.2|prefixformat:"m"|stringformat:".3f" }}</td>
 <td>{{ point.3|prefixformat:"m"|stringformat:".3f" }}</td>
+<td><img src="{{ lightcurve.thumbnails|index:forloop.counter0 }}" height="20" class="thumbnail" number="{{ forloop.counter0 }}" /></td>
 </tr>
 {% endfor %}
 </tbody>
 </table>
+<figure style="float: left;">
+{% for thumbnail in lightcurve.thumbnails %}
+<img src="{{ thumbnail }}" id="sourceplot_{{ forloop.counter0 }}" style="display: none;" />
+{% endfor %}
+</figure>
+</div>
 {% endif %}
 {% endif %}
 {% endblock main %}

@@ -63,9 +63,9 @@ class DatasetView(BaseView):
         context['dataset'] = dataset
         context['rmsplot'] = quality.plot_rms_distance_from_fieldcentre(
             self.database, dsid)
-        context['histimageplot'] = quality.PlotHistSourcesPerImage().render(
+        context['histimageplot'] = quality.HistSourcesPerImagePlot().render(
             self.database, dsid)
-        context['scattallplot'] = quality.PlotScatPosAllCounterparts().render(
+        context['scattallplot'] = quality.ScatterPosAllCounterpartsPlot().render(
             self.database, dsid)
 
         return context
@@ -91,17 +91,10 @@ class ImageView(BaseView):
             raise Http404
         else:
             image = image[0]
-        image['png'] = plot.image(image, database=self.database)
+        image['png'] = plot.ImagePlot().render(image, database=self.database)
         dataset = self.database.dataset(id=kwargs['dataset'])[0]
         sources = self.database.extractedsource(image=image['id'])
-        image['sources'] = plot.image(image, plotsources=sources)
-        #if self.request.GET:
-        #    extra_options = self.request.GET.getlist('extra')
-        #    if 'plotsources' in extra_options:
-        #        sources = self.database.extractedsource(image=image['id'])
-        #        image['sources'] = plot.image(image, plotsources=sources)
-        #    if 'listsources' in extra_options:
-        #        sources = self.database.extractedsource(image=image['id'])
+        image['sources'] = plot.ImagePlot().render(image, plotsources=sources)
         context['image'] = image
         context['sources'] = sources
         context['dataset'] = dataset
@@ -137,11 +130,17 @@ class TransientView(BaseView):
         trigger_index = [i for i, lc in enumerate(lightcurve)
                          if lc[4] == transient['trigger_xtrsrc_id']][0]
         context['lightcurve'] = {
-            'plot': plot.lightcurve(lightcurve, images=images, trigger_index=trigger_index),
+            'plot': plot.LightcurvePlot().render(
+                lightcurve, images=images, trigger_index=trigger_index),
             'data': lightcurve
             }
         context['dataset'] = self.database.dataset(id=kwargs['dataset'])[0]
         context['transient'] = transient
+        context['lightcurve']['thumbnails'] = []
+        for point in context['lightcurve']['data']:
+            ra, dec, filename = self.database.thumbnail(point[4])
+            context['lightcurve']['thumbnails'].append(
+                plot.ThumbnailPlot(size=(4, 4)).render(filename, (ra, dec)))
         return context
 
 
@@ -168,7 +167,7 @@ class SourceView(BaseView):
         images = self.database.image_times(dataset=kwargs['dataset'])
         lightcurve = self.database.lightcurve(int(source['xtrsrc_id']))
         context['lightcurve'] = {
-            'plot': plot.lightcurve(lightcurve, images=images),
+            'plot': plot.LightcurvePlot().render(lightcurve, images=images),
             'data': lightcurve
             }
         context['source'] = source
@@ -266,7 +265,8 @@ class TransientLightcurveView(BaseView):
     
     def render_to_response(self, context, **kwargs):
         response = HttpResponse(mimetype="image/png")
-        plot.lightcurve(self.database.lightcurve(context['id']), response=response)
+        plot.LightcurvePlot(response=response).render(
+            self.database.lightcurve(context['id']))
         return response
 
 
@@ -279,7 +279,8 @@ class SourceLightcurveView(BaseView):
     
     def render_to_response(self, context, **kwargs):
         response = HttpResponse(mimetype="image/png")
-        plot.lightcurve(self.database.lightcurve(context['id']), response=response)
+        plot.LightcurvePlot(response=response).render(
+            self.database.lightcurve(context['id']))
         return response
 
 
@@ -299,5 +300,6 @@ class ImagePlotView(BaseView):
         else:
             image = image[0]
         sources = self.database.extractedsource(image=image['id'])
-        plot.image(image, plotsources=sources, response=response, size=(12, 12))
+        plot.ImagePlot(response=response, size=(12, 12)).render(
+            image, plotsources=sources)
         return response
