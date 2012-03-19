@@ -37,8 +37,8 @@ class DataBaseView(TemplateView):
             pass
         try:
             output = subprocess.Popen(
-                ['<monetdb-executable-2', '-h', '<host2>',
-                 '-p', '<port2>', '-P', '<remove-password>', 'status'],
+                ['<monetdb-executable-2>', '-h', '<server2>',
+                 '-p', '<port2>', '-P', '<server2-password>', 'status'],
                 stdout=subprocess.PIPE).communicate()[0]
             for line in output.split('\n'):
                 try:
