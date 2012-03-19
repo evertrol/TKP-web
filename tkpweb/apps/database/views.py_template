@@ -1,0 +1,86 @@
+from django.views.generic import View, TemplateView
+from django.views.generic.base import TemplateResponseMixin
+from django.shortcuts import redirect
+import subprocess
+from tkp.config import config
+from tkpweb import settings
+
+
+# Edit all the <...> as required
+# The example below is for two database servers
+# The two original databases were different versions,
+# and thus had two different executables.
+# Also, the second database needed a remove password
+#
+# If you're using a single database server,
+# the code will obviously be a lot shorter
+
+class DataBaseView(TemplateView):
+    template_name = "database/index.html"
+
+    def get_context_data(self, **kwargs):
+        """List available databases"""
+
+        context = super(DataBaseView, self).get_context_data(**kwargs)
+        context['databases'] = {'<server1>': {'port': <port1>, 'names': []},
+                                '<server2>': {'port': <port2>, 'names': []}}
+        try:
+            output = subprocess.Popen(['<monetdb-executable-1>', 'status'], stdout=subprocess.PIPE).communicate()[0]
+            for line in output.split('\n'):
+                try:
+                    name, status = line.split()[:2]
+                    if status == 'running':
+                        context['databases']['<server1>']['names'].append(name)
+                except ValueError:
+                    pass
+        except subprocess.CalledProcessError:
+            pass
+        try:
+            output = subprocess.Popen(
+                ['<monetdb-executable-2', '-h', '<host2>',
+                 '-p', '<port2>', '-P', '<remove-password>', 'status'],
+                stdout=subprocess.PIPE).communicate()[0]
+            for line in output.split('\n'):
+                try:
+                    name, status = line.split()[:2]
+                    if status == 'running':
+                        context['databases']['<server2>']['names'].append(name)
+                except ValueError:
+                    pass
+        except subprocess.CalledProcessError:
+            pass
+        # Set and get the current database
+        host = kwargs.get('host', '<server1>')
+        port = kwargs.get('port', '<port1>')
+        name = kwargs.get('database', None)
+        if host is None:
+            host = '<server1>'
+        if port is None:
+            port = <port1>
+        if name:
+            dblogin = {
+                'host': host,
+                'name': name,
+                'password': name,
+                'user': name,
+                'port': int(port)
+                }
+        else:
+            try:
+                dblogin = self.request.session['dblogin']
+            except KeyError:
+                dblogin = {
+                    'host': config['database']['host'],
+                    'name': config['database']['name'],
+                    'password': config['database']['password'],
+                    'user': config['database']['user'],
+                    'port': config['database']['port']
+                    }
+        self.request.session['dblogin'] = dblogin
+        context['selected'] = (dblogin['host'], dblogin['port'], dblogin['name'])
+        return context
+
+    def render_to_response(self, context):
+        if 'database' in self.kwargs:
+            return redirect('database:index')
+        return super(DataBaseView, self).render_to_response(context)

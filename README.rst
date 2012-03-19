@@ -19,7 +19,16 @@ Check that you have the necessary dependencies (see below), then take
 the following steps:
 
 - copy the templates to their respective names (i.e., remove
-  "_template" from their copy).
+  "_template" from their copy). There are four files:
+
+  - tkpweb/settings.py_template
+
+  - tkpweb/apps/database/views.py_tempmlate
+
+  - tkp.cfg_template
+
+  - runserver.bash_template
+
 
 - edit tkpweb/settings.py:
   
@@ -27,9 +36,14 @@ the following steps:
 
   - edit the `SECRET_KEY`.
 
+- edit tkpweb/apps/database/views.py:
+
+  - fill out the necessary servers, ports and passwords to access your
+    database(s), so that these can be listed and set on the webpages
+
 - edit the tkp.cfg file to point to your default database
 
-- set up a database by running::
+- set up a Django database by running::
 
     python manage.py syncdb
 
