@@ -24,11 +24,11 @@
   <li><a href="{% url 'dataset:monitoringlist' dataset=dataset.id %}">Monitoring list</a></li>
 </ul>
 
-<h2>Quality control checks</h2>
+{% if histimageplot or scattallplot %}<h2>Quality control checks</h2>{% endif %}
 
-<h3>Number of sources per image</h3>
-<img src="{{ histimageplot }}" />
+{% if histimageplot %}<h3>Number of sources per image</h3>
+<img src="{{ histimageplot }}" />{% endif %}
 
-<h3>Scatter of individual sources around their averaged position</h3>
-<img src="{{ scattallplot }}" />
+{% if scattallplot %}<h3>Scatter of individual sources around their averaged position</h3>
+<img src="{{ scattallplot }}" />{% endif %}
 {% endblock main %}

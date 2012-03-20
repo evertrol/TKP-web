@@ -5,7 +5,6 @@ Based on tkp/database/qcplots.py
 
 import StringIO
 import base64
-from django.http import Http404
 import numpy
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -39,9 +38,9 @@ ORDER BY centr_img_dist_deg
 """
     database.db.cursor.execute(query, (dsid, dist_arcsec_cutoff))
     results = zip(*database.db.get(query, dsid, dist_arcsec_cutoff))
-    
+
     if not results:
-        raise Http404
+        return None
     dist_deg, rms = results[2], results[3]
     
     figure = Figure(figsize=size)
@@ -96,7 +95,7 @@ WHERE t1.image_id = imageid
 """
         results = zip(*database.db.get(query, dsid))
         if not results:
-            raise Http404
+            return None
         imageid = results[0]
         taustart_ts = results[1]
         nsources = results[2]
@@ -149,7 +148,7 @@ SELECT x.xtrsrcid
         results = zip(*database.db.get(query, dsid))
     
         if not results:
-            raise Http404
+            return None
         xtrsrc_id = results[0]
         ra = results[1]
         decl = results[2]
