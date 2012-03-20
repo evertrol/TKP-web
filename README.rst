@@ -18,6 +18,10 @@ The actual installation is, at the moment, simply a matter of cloning the git re
 Check that you have the necessary dependencies (see below), then take
 the following steps:
 
+- Put jquery.js in tkpweb/staticfiles/javascript/ (from jquery.com).
+  Note that you can also change the link in tkpweb/templates/base.html
+
+
 - copy the templates to their respective names (i.e., remove
   "_template" from their copy). There are four files:
 
