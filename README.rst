@@ -60,9 +60,14 @@ the following steps:
   manage.py runserver" line; see the django documentation for more
   information.
 
-- Convert the *scss files in the static directories to css files,
-  using sass.
+- Convert the \*scss files in the static directories to css files,
+  using sass ::
+  
+    sass base.scss:base.css
 
+- Collect the static files ::
+
+    python manage.py collectstatic
 
 - Now you can start the development server::
 
