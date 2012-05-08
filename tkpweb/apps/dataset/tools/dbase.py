@@ -331,7 +331,7 @@ SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
                 else:
                     self.db.execute("""\
     SELECT * FROM extractedsources WHERE xtrsrcid = %s""", id)
-        else:
+        else: #id is None
             if dataset is not None:
                 if image is not None:
                     self.db.execute("""\

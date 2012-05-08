@@ -25,13 +25,13 @@
 
 <img src="{{ image.png }}" />
 
-{% if image.sources %}
+{% if image.xsources %}
 <h2>Image with detected sources</h2>
 
-<a href="{% url 'dataset:image-single' dataset=dataset.id id=image.id %}"><img src="{{ image.sources }}" /></a>
+<a href="{% url 'dataset:image-single' dataset=dataset.id id=image.id %}"><img src="{{ image.xsources }}" /></a>
 {% endif %}
 
-{% if sources %}
+{% if xsources %}
 <h2>List of sources detected in this image</h2>
 
 <table>
@@ -50,18 +50,18 @@
 </tr>
 </thead>
 <tbody>
-{% for source in sources %}
+{% for xsource in xsources %}
 <tr class="{% cycle 'odd' 'even' %}">
-<td><a href="{% url 'dataset:source' dataset=dataset.id id=source.id %}">{{ source.id }}</a></td>
-<td>{{ source.ra|stringformat:".3f" }}</td>
-<td> {{ source.decl|stringformat:".3f" }}</td>
-<td>{{ source.ra_err|stringformat:".3f" }}</td>
-<td> {{ source.decl_err|stringformat:".3f" }}</td>
-<td>{{ source.det_sigma|stringformat:".3f" }}</td>
-<td>{{ source.i_peak|prefixformat:"m"|stringformat:".3g" }}</td>
-<td>{{ source.i_peak_err|prefixformat:"m"|stringformat:".3g" }}</td>
-<td>{{ source.i_int|prefixformat:"m"|stringformat:".3g" }}</td>
-<td>{{ source.i_int_err|prefixformat:"m"|stringformat:".3g" }}</td>
+<td><a href="{% url 'dataset:extractedsource' dataset=dataset.id id=xsource.id %}">{{ xsource.id }}</a></td>
+<td>{{ xsource.ra|stringformat:".3f" }}</td>
+<td> {{ xsource.decl|stringformat:".3f" }}</td>
+<td>{{ xsource.ra_err|stringformat:".3f" }}</td>
+<td> {{ xsource.decl_err|stringformat:".3f" }}</td>
+<td>{{ xsource.det_sigma|stringformat:".3f" }}</td>
+<td>{{ xsource.i_peak|prefixformat:"m"|stringformat:".3g" }}</td>
+<td>{{ xsource.i_peak_err|prefixformat:"m"|stringformat:".3g" }}</td>
+<td>{{ xsource.i_int|prefixformat:"m"|stringformat:".3g" }}</td>
+<td>{{ xsource.i_int_err|prefixformat:"m"|stringformat:".3g" }}</td>
 </tr>
 {% endfor %}
 </tbody>
