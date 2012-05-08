@@ -93,12 +93,12 @@ class ImageView(BaseView):
             image = image[0]
         image['png'] = plot.ImagePlot().render(image, database=self.database)
         dataset = self.database.dataset(id=kwargs['dataset'])[0]
-        xsources = self.database.extractedsource(image=image['id'])
+        extractedsources = self.database.extractedsource(image=image['id'])
         
             
-        image['xsources'] = plot.ImagePlot().render(image, plotsources=xsources)
+        image['extractedsources'] = plot.ImagePlot().render(image, plotsources=extractedsources)
         context['image'] = image
-        context['xsources'] = xsources
+        context['extractedsources'] = extractedsources
         context['dataset'] = dataset
         return context
 

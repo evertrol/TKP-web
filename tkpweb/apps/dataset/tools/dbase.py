@@ -309,45 +309,77 @@ SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
                 column values are available twice, with a different
                 key). For a single image, the returned value is a
                 single-element list.
+                
+            Note important keys:
+            'id' : extracted source id
+            'assoc_id' : Unique id for associated source.
+            'image': if of image from which source extracted
         """
     
         if id is not None:  # id = 0 could be valid for some databases
             if dataset is not None:
                 if image is not None:
                     self.db.execute("""
-    SELECT * FROM extractedsources ex, images im
+    SELECT ex.*, im.*, ax.xtrsrc_id 
+    FROM extractedsources ex, images im, assocxtrsources ax
     WHERE ex.xtrsrcid = %s AND ex.image_id = im.imageid AND
-    im.ds_id = %s and ex.image_id = %s""", id, dataset, image)
+    im.ds_id = %s and ex.image_id = %s
+    AND ax.assoc_xtrsrc_id = ex.xtrsrcid
+    """, id, dataset, image)
                 else:
                     self.db.execute("""
-    SELECT * FROM extractedsources ex, images im
+    SELECT ex.*, im.*, ax.xtrsrc_id 
+    FROM extractedsources ex, images im, assocxtrsources ax
     WHERE ex.xtrsrcid = %s AND ex.image_id = im.imageid AND
-    im.ds_id = %s""", id, dataset)
-            else:
+    im.ds_id = %s
+    AND ax.assoc_xtrsrc_id = ex.xtrsrcid
+    """, id, dataset)
+            else: #id is not none, dataset is none
                 if image is not None:
                     self.db.execute("""\
-    SELECT * FROM extractedsources WHERE xtrsrcid = %s
-    AND image_id = %s""", id, image)
+    SELECT ex.*, ax.xtrsrc_id
+    FROM extractedsources ex, assocxtrsources ax
+    WHERE ex.xtrsrcid = %s
+    AND ex.image_id = %s
+    AND ax.assoc_xtrsrc_id = ex.xtrsrcid""", id, image)
                 else:
                     self.db.execute("""\
-    SELECT * FROM extractedsources WHERE xtrsrcid = %s""", id)
+    SELECT ex.*, ax.xtrsrc_id
+    FROM extractedsources ex, assocxtrsources ax
+    WHERE ex.xtrsrcid = %s
+    AND ax.assoc_xtrsrc_id = ex.xtrsrcid
+    """, id)
         else: #id is None
             if dataset is not None:
                 if image is not None:
                     self.db.execute("""\
-    SELECT * FROM extractedsources ex, images im
+    SELECT ex.*, im.*, ax.xtrsrc_id 
+    FROM extractedsources ex, images im, assocxtrsources ax
     WHERE ex.image_id = im.imageid AND im.ds_id = %s
-    AND ex.image_id = %s""", dataset, image)
+    AND ex.image_id = %s
+    AND ax.assoc_xtrsrc_id = ex.xtrsrcid
+    """, dataset, image)
                 else:
                     self.db.execute("""\
-    SELECT * FROM extractedsources ex, images im
-    WHERE ex.image_id = im.imageid AND im.ds_id = %s""", dataset)
-            else:
+    SELECT ex.*, im.*, ax.xtrsrc_id 
+    FROM extractedsources ex, images im, assocxtrsources ax
+    WHERE ex.image_id = im.imageid AND im.ds_id = %s
+    AND ax.assoc_xtrsrc_id = ex.xtrsrcid
+    """, dataset)
+            else:#id is none, dataset is none
                 if image is not None:
                     self.db.execute("""\
-    SELECT * FROM extractedsources WHERE image_id = %s""", image)
+    SELECT ex.*, ax.xtrsrc_id 
+    FROM extractedsources ex, assocxtrsources ax
+    WHERE ex.image_id = %s
+    AND ax.assoc_xtrsrc_id = ex.xtrsrcid
+    """, image)
                 else:
-                    self.db.execute("""SELECT * FROM extractedsources""")
+                    self.db.execute("""\
+    SELECT ex.*, ax.xtrsrc_id 
+    FROM extractedsources ex, assocxtrsources ax
+    WHERE ax.assoc_xtrsrc_id = ex.xtrsrcid
+    """)
         description = dict(
             [(d[0], i) for i, d in enumerate(self.db.cursor.description)])
         sources = []
@@ -357,8 +389,8 @@ SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
                       for key, column in description.iteritems()]))
             # Format into somewhat nicer keys
             for key1, key2 in zip(
-                ['xtrsrcid', 'image_id'],
-                ['id', 'image']):
+                ['xtrsrcid', 'xtrsrc_id', 'image_id'],
+                ['id', 'assoc_id', 'image']):
                 sources[-1][key2] = sources[-1][key1]
             #sources[-1]['flux'] = {'peak': {}, 'int': {}}
             #    for fluxtype in ('peak', 'int'):
@@ -368,6 +400,7 @@ SELECT COUNT(*) FROM extractedsources WHERE image_id = %s"""
             #             'error': sources[-1][stokes+"_"+fluxtype+"_err"]}
             #            )
         return sources
+    
     
     def monitoringlist(self, dataset):
         # Get all user defined entries
