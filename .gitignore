@@ -3,4 +3,5 @@ settings.py
 runserver.bash
 tkpweb.db
 tkp.cfg
+tkpweb/apps/database/views.py
 *.pyc
