@@ -25,19 +25,20 @@
 
 <img src="{{ image.png }}" />
 
-{% if image.sources %}
+{% if image.extractedsources %}
 <h2>Image with detected sources</h2>
 
-<a href="{% url 'dataset:image-single' dataset=dataset.id id=image.id %}"><img src="{{ image.sources }}" /></a>
+<a href="{% url 'dataset:image-single' dataset=dataset.id id=image.id %}"><img src="{{ image.extractedsources }}" /></a>
 {% endif %}
 
-{% if sources %}
+{% if extractedsources %}
 <h2>List of sources detected in this image</h2>
 
 <table>
 <thead>
 <tr>
 <th>Extracted source #</th>
+<th>Associated source #</th>
 <th>Right Ascension</th>
 <th>Declination</th>
 <th>Error (RA)</th>
@@ -50,18 +51,19 @@
 </tr>
 </thead>
 <tbody>
-{% for source in sources %}
+{% for extractedsource in extractedsources %}
 <tr class="{% cycle 'odd' 'even' %}">
-<td><a href="{% url 'dataset:source' dataset=dataset.id id=source.id %}">{{ source.id }}</a></td>
-<td>{{ source.ra|stringformat:".3f" }}</td>
-<td> {{ source.decl|stringformat:".3f" }}</td>
-<td>{{ source.ra_err|stringformat:".3f" }}</td>
-<td> {{ source.decl_err|stringformat:".3f" }}</td>
-<td>{{ source.det_sigma|stringformat:".3f" }}</td>
-<td>{{ source.i_peak|prefixformat:"m"|stringformat:".3g" }}</td>
-<td>{{ source.i_peak_err|prefixformat:"m"|stringformat:".3g" }}</td>
-<td>{{ source.i_int|prefixformat:"m"|stringformat:".3g" }}</td>
-<td>{{ source.i_int_err|prefixformat:"m"|stringformat:".3g" }}</td>
+<td><a href="{% url 'dataset:extractedsource' dataset=dataset.id id=extractedsource.id %}">{{ extractedsource.id }}</a></td>
+<td><a href="{% url 'dataset:source' dataset=dataset.id id=extractedsource.assoc_id %}">{{ extractedsource.assoc_id }}</a></td>
+<td>{{ extractedsource.ra|stringformat:".3f" }}</td>
+<td> {{ extractedsource.decl|stringformat:".3f" }}</td>
+<td>{{ extractedsource.ra_err|stringformat:".3f" }}</td>
+<td> {{ extractedsource.decl_err|stringformat:".3f" }}</td>
+<td>{{ extractedsource.det_sigma|stringformat:".3f" }}</td>
+<td>{{ extractedsource.i_peak|prefixformat:"m"|stringformat:".3g" }}</td>
+<td>{{ extractedsource.i_peak_err|prefixformat:"m"|stringformat:".3g" }}</td>
+<td>{{ extractedsource.i_int|prefixformat:"m"|stringformat:".3g" }}</td>
+<td>{{ extractedsource.i_int_err|prefixformat:"m"|stringformat:".3g" }}</td>
 </tr>
 {% endfor %}
 </tbody>

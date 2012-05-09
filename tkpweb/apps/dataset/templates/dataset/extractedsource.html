@@ -19,6 +19,8 @@
   <dd><a href="{% url 'dataset:dataset' id=dataset.id %}">{{ dataset.id }}</a></dd>
   <dt>Image</dt>
   <dd><a href="{% url 'dataset:image' dataset=dataset.id id=extractedsource.image %}">{{ extractedsource.image }}</a></dd>
+  <dt>Associated Source</dt>
+  <dd><a href="{% url 'dataset:source' dataset=dataset.id id=extractedsource.assoc_id %}">{{ extractedsource.assoc_id }}</a></dd>
 </dl>
 <!--
 -->
